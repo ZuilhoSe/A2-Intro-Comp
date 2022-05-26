@@ -15,6 +15,13 @@ table{
       height: 300px;
       margin-bottom: 30px;
       background-color: #ffffff;
+      border-radius: 9px;
+      padding-bottom: 20px;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 18px;
+      
+
 }
 #tabelas{
       display: flex;
@@ -22,6 +29,7 @@ table{
       flex-direction: column;
       margin: auto;
       width: 60%;
+      margin-top: 80px;
 }
 
 body {
