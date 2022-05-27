@@ -28,8 +28,8 @@ table{
       justify-content: center;
       flex-direction: column;
       margin: auto;
-      width: 60%;
-      margin-top: 80px;
+      width: 580px;
+      margin-top: 20px;
 }
 
 body {
@@ -42,4 +42,45 @@ th{
 }
 td{
       font-family: 'Open Sans';
+}
+
+nav{
+      margin: auto;
+      width: 600px;
+      overflow: hidden;
+      top: 0;
+      position: sticky;
+      background-color: #eeeeee;
+      height: 50px;
+}
+
+#brand{
+      font-family: 'FjallaOne', sans-serif;
+      font-size: 1.5em;
+      float: left;
+      margin-top: 16px;
+      margin-bottom: 16px;
+      margin-left: 12px;
+}
+
+ul{
+      list-style-type: none;
+      float: right;
+      display: flex;
+      flex-direction: row;
+      margin-right: 12px;
+}
+li{
+      margin-left: 14px;
+      margin-right: 14px;
+}
+a{
+      padding-top: 16px;
+      padding-bottom: 16px;
+      text-decoration: none;
+      color:black;
+      font-family: 'Open Sans';
+}
+a:hover {
+      background-color: #e2e2e2;
 }
