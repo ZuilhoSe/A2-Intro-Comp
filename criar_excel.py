@@ -13,7 +13,6 @@ def criar_folhas(nome_arquivo):
     #Criar Folhas nomeadas
     folha1.title = "Carteira"
     planilha.create_sheet("Estatísticas", 1)
-    planilha.create_sheet("YFINANCE", 2)
     #Salva a planilha
     planilha.save(nome_arquivo)
 
