@@ -1,5 +1,9 @@
 import yfinance as yf
 
+fator_de_conversao = 2
+
+dic = {"PETR4.SA":"10", "AMZN":"10"}
+
 def cotacao_semana(dic):
     """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação do ativo na última semana útil
 
@@ -31,3 +35,12 @@ def cotacao_anual(dic):
         ticket_hist = ticket.history(period="1y")
         dicionario_anual[ativo] = ticket_hist
     return dicionario_anual
+
+
+
+def conversão(f, dic):
+    for ativo in dic.keys():
+        df = f[ativo]
+        df["Close"] = fator_de_conversao * df["Close"]
+    return f
+print(conversão(cotacao_semana(dic), dic))
