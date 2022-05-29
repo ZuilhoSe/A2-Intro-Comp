@@ -1,26 +1,59 @@
 from openpyxl import Workbook, load_workbook
 
-#Cria o arquivo excel
 def criar_arquivo(nome_arquivo):
+    """Cria o arquivo excel
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """    
+    
     planilha = Workbook()
     planilha.save(nome_arquivo)
 
-#Coloca as folhas nomeadas
+
 def criar_folhas(nome_arquivo):
+    """Coloca as folhas nomeadas
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """
+    
     #Abre o arquivo
     planilha = load_workbook(nome_arquivo)
     folha1 = planilha.active
     #Criar Folhas nomeadas
     folha1.title = "Carteira"
     planilha.create_sheet("Estatísticas", 1)
-    planilha.create_sheet("YFINANCE", 2)
     #Salva a planilha
     planilha.save(nome_arquivo)
 
-#Cria o a planilha base
-def criar_planilha(nome_carteira):
-    nome_arquivo = nome_carteira +".xlsx"
+def link_folhas(nome_arquivo):
+    """Cria o Link entre as duas folhas
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """
+    
+    #Abre o arquivo
+    planilha = load_workbook(nome_arquivo)
+    #Seleciona as folhas
+    carteira = planilha["Carteira"]
+    estatisticas = planilha["Estatísticas"]
+    #Cria as strings dos links
+    link_para_estatisticas = f"=HYPERLINK(\"[{nome_arquivo}]Estatísticas!A1\",\"Estatísticas\")"
+    link_para_carteira = f"=HYPERLINK(\"[{nome_arquivo}]Carteira!A1\",\"Carteira\")"
+    #Adiciona o link a celula A1 de cada folha
+    carteira["A1"] = link_para_estatisticas
+    estatisticas["A1"] = link_para_carteira
+    #Salva a planilha
+    planilha.save(nome_arquivo)
+
+def criar_planilha(nome_arquivo):
+    """Cria o a planilha base
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """
     criar_arquivo(nome_arquivo)
     criar_folhas(nome_arquivo)
-
-criar_planilha("Teste")
+    link_folhas(nome_arquivo)
