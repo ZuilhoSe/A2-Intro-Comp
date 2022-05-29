@@ -1,14 +1,13 @@
-
+/*adiciona a fonte FjallaOne*/
 @font-face {
       font-family: 'FjallaOne';
       src: url('fontes/FjallaOne-Regular.ttf') format('truetype');
 }
-
+/*adiciona a fonte FjallaOne*/
 @font-face {
       font-family: 'Open Sans';
       src: url('fontes/OpenSans-VariableFont_wdth\,wght.ttf') format('truetype');
 }
-
 
 table{
       width: 100%;
@@ -23,6 +22,8 @@ table{
       
 
 }
+
+
 #tabelas{
       display: flex;
       justify-content: center;
@@ -32,11 +33,13 @@ table{
       margin-top: 20px;
 }
 
+
 body {
       background-color: #eeeeee;
 }
 
 th{
+
       font-family: 'FjallaOne', sans-serif;
       font-size: 2em;
 }
@@ -45,6 +48,10 @@ td{
 }
 
 nav{
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      align-items:center;
       margin: auto;
       width: 600px;
       overflow: hidden;
@@ -54,18 +61,18 @@ nav{
       height: 50px;
 }
 
-#brand{
+#nome{
       font-family: 'FjallaOne', sans-serif;
       font-size: 1.5em;
-      float: left;
-      margin-top: 16px;
-      margin-bottom: 16px;
       margin-left: 12px;
+}
+#brand{
+      display: flex;
+      align-items: center;
 }
 
 ul{
       list-style-type: none;
-      float: right;
       display: flex;
       flex-direction: row;
       margin-right: 12px;
