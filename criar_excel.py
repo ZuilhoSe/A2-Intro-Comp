@@ -33,10 +33,7 @@ def link_folhas(nome_arquivo):
     planilha.save(nome_arquivo)
 
 #Cria o a planilha base
-def criar_planilha(nome_carteira):
-    nome_arquivo = nome_carteira +".xlsx"
+def criar_planilha(nome_arquivo):
     criar_arquivo(nome_arquivo)
     criar_folhas(nome_arquivo)
     link_folhas(nome_arquivo)
-
-criar_planilha("Teste")
