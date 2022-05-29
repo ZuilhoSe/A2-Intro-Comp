@@ -23,11 +23,11 @@ def cotacao_anual(dic):
         dic (Dictionary): Espera um dicionário onde as chaves são os códigos de cada ativo
 
     Returns:
-        list: Retorna uma lista onde cada elementos é um dataframe das informações mais relevantes do ativo no último ano
+        Dictionary: Retorna um dicionario onde cada chave é um ativo e cada valor é um dataframe das informações mais relevantes do ativo no último ano
     """  
-    lista_anual = []
-    for x in dic.keys():
-        y=yf.Ticker(x)
-        y_hist = y.history(period="1y")
-        lista_anual.append(y_hist)
-    return lista_anual
+    dicionario_anual={}
+    for ativo in dic.keys():
+        ticket=yf.Ticker(ativo)
+        ticket_hist = ticket.history(period="1y")
+        dicionario_anual[ativo] = ticket_hist
+    return dicionario_anual
