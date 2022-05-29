@@ -1,12 +1,23 @@
 from openpyxl import Workbook, load_workbook
 
-#Cria o arquivo excel
 def criar_arquivo(nome_arquivo):
+    """Cria o arquivo excel
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """    
+    
     planilha = Workbook()
     planilha.save(nome_arquivo)
 
-#Coloca as folhas nomeadas
+
 def criar_folhas(nome_arquivo):
+    """Coloca as folhas nomeadas
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """
+    
     #Abre o arquivo
     planilha = load_workbook(nome_arquivo)
     folha1 = planilha.active
@@ -16,8 +27,13 @@ def criar_folhas(nome_arquivo):
     #Salva a planilha
     planilha.save(nome_arquivo)
 
-#Cria o Link entre as duas folhas
 def link_folhas(nome_arquivo):
+    """Cria o Link entre as duas folhas
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """
+    
     #Abre o arquivo
     planilha = load_workbook(nome_arquivo)
     #Seleciona as folhas
@@ -32,8 +48,12 @@ def link_folhas(nome_arquivo):
     #Salva a planilha
     planilha.save(nome_arquivo)
 
-#Cria o a planilha base
 def criar_planilha(nome_arquivo):
+    """Cria o a planilha base
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """
     criar_arquivo(nome_arquivo)
     criar_folhas(nome_arquivo)
     link_folhas(nome_arquivo)
