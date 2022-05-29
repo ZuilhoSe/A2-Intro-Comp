@@ -15,14 +15,16 @@ table{
       margin-bottom: 9px;
       background-color: #ffffff;
       border-radius: 9px;
-      padding-bottom: 20px;
-      padding-left: 50px;
-      padding-right: 50px;
+      padding-bottom: 28px;
+      padding-left: 160px;
+      padding-right: 160px;
       padding-top: 18px;
       
 
 }
-
+.num{
+      text-align: right;
+}
 
 #tabelas{
       display: flex;
