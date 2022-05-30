@@ -16,19 +16,13 @@ def buscar_fator(ativo):
 
 
 
-def conversao(ticket_hist, dic):
-    #chama a função conversão para receber um dicionario com os fatores de correção de cada ativo 
-    fatores = buscar_fator(dic)
-    for ativo in dic.keys():
-        fator_conversao = fatores[ativo]
-        print(fator_conversao)
-        #evita a execução para quando o ativo ja esta cotado em BRL para otimização do código
-        if fator_conversao != 1:
-            df = ticket_hist  
-            df["Open"] = fator_conversao * df["Open"]
-            df["High"] = fator_conversao * df["High"]
-            df["Low"] = fator_conversao * df["Low"]
-            df["Close"] = fator_conversao * df["Close"]
+def conversao(ticket_hist, fator):
+    if fator != 1:
+        ticket_hist  
+        ticket_hist ["Open"] = fator * ticket_hist ["Open"]
+        ticket_hist ["High"] = fator * ticket_hist ["High"]
+        ticket_hist ["Low"] = fator * ticket_hist ["Low"]
+        ticket_hist ["Close"] = fator * ticket_hist ["Close"]
     return ticket_hist
 
 def cotacao_semana(dic):
@@ -45,7 +39,7 @@ def cotacao_semana(dic):
         ticket_hist = ticket.history(period="5d")
         #chama a funçao conversão para corrigir o valor das colunas necessarias para BRL quando o ativo estiver cotado em outra moeda
         fator = buscar_fator(ativo)
-        ticket_hist = conversao(ticket_hist, dic)
+        ticket_hist = conversao(ticket_hist, fator)
 
         dicionario_semana[ativo] = ticket_hist
 
@@ -67,6 +61,6 @@ def cotacao_anual(dic):
         dicionario_anual[ativo] = ticket_hist
     return dicionario_anual
 
-print(cotacao_semana(dic))
+
 
 
