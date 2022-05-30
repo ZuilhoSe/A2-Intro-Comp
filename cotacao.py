@@ -54,7 +54,6 @@ def cotacao_semana(dic):
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_hist = ticket.history(period="5d")
-        print(type(ticket_hist))
         #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
         fator = buscar_fator(ativo)
         #chama a função conversao que usa o resultado de buscar_fator para converter as colunas necessarias para real quando o ativo esta cotado em outra moeda
