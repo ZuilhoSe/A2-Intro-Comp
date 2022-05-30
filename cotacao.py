@@ -1,21 +1,19 @@
 import yfinance as yf
 import time
 
-dic = {"AMZN":"10", "KO":"10", "AAPL":"10", "PETR4.SA":"12"}
+dic = {"PETR4.SA":"10", "AMZN":"10"}
 
-def buscar_fator(dic):
-    dicionario_fatores = {}
-    for ativo in dic.keys():
-        ticket=yf.Ticker(ativo)
-        ticket_currency = ticket.info["currency"]
-        if ticket_currency != "BRL":
-            ticket_currency = ticket_currency+"BRL=X"
-            fator = yf.Ticker(ticket_currency)
-            fator_info = fator.info["regularMarketPrice"]
-            dicionario_fatores[ativo] = fator_info
-        else:
-            dicionario_fatores[ativo] = 1
-    return dicionario_fatores
+def buscar_fator(ativo):
+    ticket=yf.Ticker(ativo)
+    ticket_currency = ticket.info["currency"]
+    if ticket_currency != "BRL":
+        ticket_currency = ticket_currency+"BRL=X"
+        fator = yf.Ticker(ticket_currency)
+        fator_info = fator.info["regularMarketPrice"]
+        return fator_info
+    else:
+        return 1
+
 
 
 def conversao(ticket_hist, dic):
@@ -23,6 +21,7 @@ def conversao(ticket_hist, dic):
     fatores = buscar_fator(dic)
     for ativo in dic.keys():
         fator_conversao = fatores[ativo]
+        print(fator_conversao)
         #evita a execução para quando o ativo ja esta cotado em BRL para otimização do código
         if fator_conversao != 1:
             df = ticket_hist  
@@ -45,7 +44,9 @@ def cotacao_semana(dic):
         ticket=yf.Ticker(ativo)
         ticket_hist = ticket.history(period="5d")
         #chama a funçao conversão para corrigir o valor das colunas necessarias para BRL quando o ativo estiver cotado em outra moeda
+        fator = buscar_fator(ativo)
         ticket_hist = conversao(ticket_hist, dic)
+
         dicionario_semana[ativo] = ticket_hist
 
     return dicionario_semana
@@ -66,6 +67,6 @@ def cotacao_anual(dic):
         dicionario_anual[ativo] = ticket_hist
     return dicionario_anual
 
-
+print(cotacao_semana(dic))
 
 
