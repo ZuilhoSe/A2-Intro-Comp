@@ -15,7 +15,7 @@ def buscar_fator(dic):
             dicionario_fatores[ativo] = fator_info
         else:
             dicionario_fatores[ativo] = 1
-    return print(dicionario_fatores)
+    return dicionario_fatores
 
 
 def conversao(ticket_hist, dic):
@@ -33,7 +33,7 @@ def conversao(ticket_hist, dic):
     return ticket_hist
 
 def cotacao_semana(dic):
-    tempo1 = time.time()
+
     """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação do ativo na última semana útil
     Args:
         dic (Dictionary): Espera um dicionário onde as chaves são os códigos de cada ativo
@@ -47,12 +47,10 @@ def cotacao_semana(dic):
         #chama a funçao conversão para corrigir o valor das colunas necessarias para BRL quando o ativo estiver cotado em outra moeda
         ticket_hist = conversao(ticket_hist, dic)
         dicionario_semana[ativo] = ticket_hist
-    tempo2 = time.time()
-    print(f"{tempo2-tempo1} segundos")
+
     return dicionario_semana
 
 def cotacao_anual(dic):
-
     """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação do ativo no último ano
     Args:
         dic (Dictionary): Espera um dicionário onde as chaves são os códigos de cada ativo
