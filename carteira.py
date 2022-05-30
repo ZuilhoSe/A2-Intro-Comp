@@ -99,6 +99,22 @@ def estilizar_tabela_ativo(nome_folha,estilos_tabela_ativos,linha_inicial,coluna
     nome_folha.cell(row = linha_inicial+4, column = coluna_inicial+12).style = estilo_blocos
     nome_folha.cell(row = linha_inicial+7, column = coluna_inicial+12).style = estilo_blocos
 
+def formatar_real(nome_folha,linha_inicial,linha_final,coluna_inicial,coluna_final):
+    """Formata um range de células como real
+
+    Args:
+        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
+        linha_inicial (int): 
+        linha_final (int): 
+        coluna_inicial (int): 
+        coluna_final (int): 
+    """    
+    linhas_formatar = range(linha_inicial,linha_final+1)
+    colunas_formatar = range(coluna_inicial,coluna_final+1)
+    for linha in linhas_formatar:
+        for coluna in colunas_formatar:
+            nome_folha.cell(row = linha, column = coluna).number_format = "R$ #.##0,00"
+
 #Funções de adição dos dados
 def criar_cabecalho(nome_folha):
     """Cria o cabeçalho da planilha
@@ -149,6 +165,8 @@ def criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,coluna_inicial)
             nome_folha.cell(row = linha_tabela,column = coluna_item, value = item_coluna)
             coluna_item += 1
         linha_tabela += 1
+    #Formata os valores ao tipo correto
+    formatar_real(nome_folha,linha_inicial + 5,linha_inicial + 9,coluna_inicial + 1,coluna_inicial + 6)
 
 def criar_blocos(linha_inicial,coluna_inicial,titulo,valor,nome_folha):
     """Cria um dois blocos no excel, com tammanho 2x2 um ao lado do outro
