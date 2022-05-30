@@ -4,6 +4,101 @@ from cotacao import cotacao_semana
 from openpyxl.utils.dataframe import dataframe_to_rows
 from criar_excel import criar_planilha
 
+#Funções de estilo da carteira
+def estilizar_cabecalho(nome_folha):
+    """Estiliza o cabeçalho da carteira
+
+    Args:
+        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
+    """    
+    #Define o estilo utilizado em todo o cabeçalho
+    estilo_padrao_cabecalho = NamedStyle(name = "estilo_padrao_cabecalho")
+    estilo_padrao_cabecalho.fill = PatternFill(fill_type="solid",fgColor="00333333")
+    #Aplica o estilo em todo o cabeçalho
+    linhas_cabecalho = range(2,9)
+    colunas_cabecalho = range(1,17)
+    for linha in linhas_cabecalho:
+        for coluna in colunas_cabecalho:
+            nome_folha.cell(row = linha, column = coluna).style = estilo_padrao_cabecalho
+    #Define o estilo do título do título da carteira
+    estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
+    estilo_titulo_carteira.font = Font(name = "Arial Black",size = 24,color="FFFFFF")
+    estilo_titulo_carteira.fill = PatternFill(fill_type="solid",fgColor="00333333")
+    estilo_titulo_carteira.alignment = Alignment(horizontal="center",vertical="center")
+    #Aplica o estilo somente no título da carteira
+    nome_folha["B3"].style = estilo_titulo_carteira
+    #Define o estilo da célula "Valor Total:"
+    estilo_valor_total = NamedStyle(name = "estilo_valor_total")
+    estilo_valor_total.font = Font(name = "Arial Black",size = 24)
+    estilo_valor_total.alignment = Alignment(horizontal="center",vertical="center")
+    estilo_valor_total.fill = PatternFill(fill_type="solid",fgColor="00C0C0C0")
+    #Aplica o estilo somente na célula "Valor Total:"
+    nome_folha["L3"].style = estilo_valor_total
+
+def estilos_tabela_ativo():
+    """Retorna um dicionário com os estilos utilizados para as tabelas por ativo
+    """    
+    estilos = dict()
+    #Define o estilo utilizado da margem da tabela
+    estilo_margem = NamedStyle(name = "estilo_margem")
+    estilo_margem.fill = PatternFill(fill_type="solid",fgColor="00333333")
+    estilos["estilo_margem"] = estilo_margem
+    #Define o estilo do background
+    estilo_background = NamedStyle(name = "estilo_background")
+    estilo_background.fill = PatternFill(fill_type="solid",fgColor="00808080")
+    estilos["estilo_background"] = estilo_background
+    #Define o estilo dos títulos
+    estilo_titulos = NamedStyle(name = "estilo_titulos")
+    estilo_titulos.fill = PatternFill(fill_type="solid",fgColor="00C0C0C0")
+    estilo_titulos.font = Font(name = "Arial Black")
+    estilo_titulos.alignment = Alignment(horizontal="center",vertical="center")
+    estilos["estilo_titulos"] = estilo_titulos
+    #Define o estilo dos blocos
+    estilo_blocos = NamedStyle(name = "estilo_blocos")
+    estilo_blocos.fill = PatternFill(fill_type="solid",fgColor="FFFFFF")
+    estilo_blocos.font = Font(name = "Arial Black")
+    estilo_blocos.alignment = Alignment(horizontal="center",vertical="center")
+    estilos["estilo_blocos"] = estilo_blocos
+    
+    return estilos
+
+def estilizar_tabela_ativo(nome_folha,estilos_tabela_ativos,linha_inicial,coluna_inicial):
+    """Estiliza as tabelas por ativo
+
+    Args:
+        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
+        estilos_tabela_ativos (dictionary): deve estar no formato {titulo1:estilo1,titulo2:estilo2,...}
+        linha_inicial (int): linha em que começa o bloco da tabela
+        coluna_inicial (int): coluna em que começa o bloco
+    """    
+    #Estiliza a margem
+    estilo_margem = estilos_tabela_ativos["estilo_margem"]
+    linhas_margem = range(linha_inicial,linha_inicial+12)
+    colunas_margem = range(coluna_inicial,coluna_inicial+16)
+    for linha in linhas_margem:
+        for coluna in colunas_margem:
+            nome_folha.cell(row = linha, column = coluna).style = estilo_margem
+    #Estiliza o background
+    estilo_background = estilos_tabela_ativos["estilo_background"]
+    linhas_background = range(linha_inicial,linha_inicial+11)
+    colunas_background = range(coluna_inicial+1,coluna_inicial+15)
+    for linha in linhas_background:
+        for coluna in colunas_background:
+            nome_folha.cell(row = linha, column = coluna).style = estilo_background
+    #Estiliza os titulos
+    estilo_titulos = estilos_tabela_ativos["estilo_titulos"]
+    #Nome da ação
+    nome_folha.cell(row = linha_inicial+1, column = coluna_inicial+2).style = estilo_titulos
+    #Título blocos de resumo
+    nome_folha.cell(row = linha_inicial+1, column = coluna_inicial+11).style = estilo_titulos
+    nome_folha.cell(row = linha_inicial+4, column = coluna_inicial+11).style = estilo_titulos
+    nome_folha.cell(row = linha_inicial+7, column = coluna_inicial+11).style = estilo_titulos
+    #Estiliza os blocos
+    estilo_blocos = estilos_tabela_ativos["estilo_blocos"]
+    nome_folha.cell(row = linha_inicial+1, column = coluna_inicial+12).style = estilo_blocos
+    nome_folha.cell(row = linha_inicial+4, column = coluna_inicial+12).style = estilo_blocos
+    nome_folha.cell(row = linha_inicial+7, column = coluna_inicial+12).style = estilo_blocos
+
 #Funções de adição dos dados
 def criar_cabecalho(nome_folha):
     """Cria o cabeçalho da planilha
@@ -19,6 +114,7 @@ def criar_cabecalho(nome_folha):
     nome_folha.merge_cells("L3:M7")
     nome_folha["N3"] =  "QRCODE"
     nome_folha.merge_cells("N3:O7")
+    estilizar_cabecalho(nome_folha)
 
 def criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,coluna_inicial):
     """Cria na planilha a tabela por ativo
@@ -52,7 +148,7 @@ def criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,coluna_inicial)
         for item_coluna in linha:
             nome_folha.cell(row = linha_tabela,column = coluna_item, value = item_coluna)
             coluna_item += 1
-        linha_tabela += 1    
+        linha_tabela += 1
 
 def criar_blocos(linha_inicial,coluna_inicial,titulo,valor,nome_folha):
     """Cria um dois blocos no excel, com tammanho 2x2 um ao lado do outro
@@ -65,9 +161,9 @@ def criar_blocos(linha_inicial,coluna_inicial,titulo,valor,nome_folha):
         nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
     """    
     nome_folha.cell(row = linha_inicial,column = coluna_inicial, value = titulo)
-    nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial, end_row = linha_inicial+1, end_column = coluna_inicial +  1)
-    nome_folha.cell(row = linha_inicial,column = coluna_inicial+2, value = valor)
-    nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial+2, end_row = linha_inicial+1, end_column = coluna_inicial +  3)
+    nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial, end_row = linha_inicial+1, end_column = coluna_inicial)
+    nome_folha.cell(row = linha_inicial,column = coluna_inicial+1, value = valor)
+    nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial+1, end_row = linha_inicial+1, end_column = coluna_inicial +  2)
 
 def criar_resumo(nome_folha,valor_total,valor_ultima_cotacao,quantidade,linha_inicial,coluna_inicial):
     """Cria os blocos de resumo do ativo
@@ -101,41 +197,15 @@ def criar_corpo_carteira(nome_folha,dicionario_ativos):
     cotacao = cotacao_semana(dicionario_ativos)
     #Define a linha que termina o cabeçalho
     linha_inicial = 9
+    #Define os estilos para estilizar as tabelas
+    estilos = estilos_tabela_ativo()
+    #Para cada ativo cria os blocos
     for ativo,data_frame in cotacao.items():
+        estilizar_tabela_ativo(nome_folha,estilos,linha_inicial,1)
         criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,3)
         criar_resumo(nome_folha,1,1,1,linha_inicial,12)
         #Define o começo do próximo bloco
         linha_inicial += 12
-#Funções de estilo da carteira
-def estilo_cabecalho(nome_folha):
-    """Estiliza o cabeçalho da carteira
-
-    Args:
-        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
-    """    
-    #Define o estio utilizado em todo o cabeçalho
-    estilo_padrao_cabecalho = NamedStyle(name = "estilo_padrao_cabecalho")
-    estilo_padrao_cabecalho.fill = PatternFill(fill_type="solid",fgColor="00333333")
-    linhas_cabecalho = range(2,9)
-    colunas_cabecalho = range(1,17)
-    #Aplica o estilo em todo o cabeçalho
-    for linha in linhas_cabecalho:
-        for coluna in colunas_cabecalho:
-            nome_folha.cell(row = linha, column = coluna).style = estilo_padrao_cabecalho
-    #Define o estilo do título do título da carteira
-    estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
-    estilo_titulo_carteira.font = Font(name = "Arial Black",size = 24,color="FFFFFF")
-    estilo_titulo_carteira.fill = PatternFill(fill_type="solid",fgColor="00333333")
-    estilo_titulo_carteira.alignment = Alignment(horizontal="center",vertical="center")
-    #Aplica o estilo somente no título da carteira
-    nome_folha["B3"].style = estilo_titulo_carteira
-    #Define o estilo da célula "Valor Total:"
-    estilo_valor_total = NamedStyle(name="estilo_valor_total")
-    estilo_valor_total.font = Font(name = "Arial Black",size = 24)
-    estilo_valor_total.alignment = Alignment(horizontal="center",vertical="center")
-    estilo_valor_total.fill = PatternFill(fill_type="solid",fgColor="00C0C0C0")
-    #Aplica o estilo somente na célula "Valor Total:"
-    nome_folha["L3"].style = estilo_valor_total
 
 #Função final
 def carteira(nome_arquivo,dicionario_ativos):
@@ -151,7 +221,6 @@ def carteira(nome_arquivo,dicionario_ativos):
     folha_carteira = planilha["Carteira"]
     criar_cabecalho(folha_carteira)
     criar_corpo_carteira(folha_carteira,dicionario_ativos)
-    estilo_cabecalho(folha_carteira)
     #Salva o arquivo
     planilha.save(nome_arquivo)
 
