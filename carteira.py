@@ -81,6 +81,7 @@ def criar_corpo_carteira(nome_arquivo,dicionario_ativos):
         #Define o começo do próximo bloco
         linha_inicial += 12
 
+
 nome_arquivo = "Teste.xlsx"
 criar_planilha(nome_arquivo)
 criar_cabecalho(nome_arquivo)
