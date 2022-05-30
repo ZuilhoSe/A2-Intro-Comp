@@ -1,9 +1,10 @@
-from json import load
 from openpyxl import Workbook, load_workbook
+from openpyxl.styles import NamedStyle,PatternFill, Border, Side, Alignment, Protection, Font
 from cotacao import cotacao_semana
 from openpyxl.utils.dataframe import dataframe_to_rows
 from criar_excel import criar_planilha
 
+#Funções de adição dos dados
 def criar_cabecalho(nome_folha):
     """Cria o cabeçalho da planilha
 
@@ -14,7 +15,7 @@ def criar_cabecalho(nome_folha):
     nome_folha["B3"]  = "Carteira de Ativos"
     nome_folha.merge_cells("B3:K7")
     #Criar espaço para QRCODE
-    nome_folha["L3"] = "Valor Total"
+    nome_folha["L3"] = "Valor Total:"
     nome_folha.merge_cells("L3:M7")
     nome_folha["N3"] =  "QRCODE"
     nome_folha.merge_cells("N3:O7")
@@ -35,7 +36,6 @@ def criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,coluna_inicial)
     nome_folha.merge_cells(start_row = linha_titulo, start_column = coluna_inicial, end_row = linha_titulo+1, end_column = coluna_inicial +  7)
     #Define a linha inicial da tabela
     linha_tabela = linha_inicial + 4 
-    nome_folha.cell(row = linha_tabela,column = coluna_inicial, value = None)
     #Transforma o dataframe em uma lista de linhas
     linhas_data_frame = list(dataframe_to_rows(data_frame,index=True,header=True))
     """
@@ -106,7 +106,38 @@ def criar_corpo_carteira(nome_folha,dicionario_ativos):
         criar_resumo(nome_folha,1,1,1,linha_inicial,12)
         #Define o começo do próximo bloco
         linha_inicial += 12
+#Funções de estilo da carteira
+def estilo_cabecalho(nome_folha):
+    """Estiliza o cabeçalho da carteira
 
+    Args:
+        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
+    """    
+    #Define o estio utilizado em todo o cabeçalho
+    estilo_padrao_cabecalho = NamedStyle(name = "estilo_padrao_cabecalho")
+    estilo_padrao_cabecalho.fill = PatternFill(fill_type="solid",fgColor="00333333")
+    linhas_cabecalho = range(2,9)
+    colunas_cabecalho = range(1,17)
+    #Aplica o estilo em todo o cabeçalho
+    for linha in linhas_cabecalho:
+        for coluna in colunas_cabecalho:
+            nome_folha.cell(row = linha, column = coluna).style = estilo_padrao_cabecalho
+    #Define o estilo do título do título da carteira
+    estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
+    estilo_titulo_carteira.font = Font(name = "Arial Black",size = 24,color="FFFFFF")
+    estilo_titulo_carteira.fill = PatternFill(fill_type="solid",fgColor="00333333")
+    estilo_titulo_carteira.alignment = Alignment(horizontal="center",vertical="center")
+    #Aplica o estilo somente no título da carteira
+    nome_folha["B3"].style = estilo_titulo_carteira
+    #Define o estilo da célula "Valor Total:"
+    estilo_valor_total = NamedStyle(name="estilo_valor_total")
+    estilo_valor_total.font = Font(name = "Arial Black",size = 24)
+    estilo_valor_total.alignment = Alignment(horizontal="center",vertical="center")
+    estilo_valor_total.fill = PatternFill(fill_type="solid",fgColor="00C0C0C0")
+    #Aplica o estilo somente na célula "Valor Total:"
+    nome_folha["L3"].style = estilo_valor_total
+
+#Função final
 def carteira(nome_arquivo,dicionario_ativos):
     """Realiza todas as modificações na folha carteira
 
@@ -120,6 +151,7 @@ def carteira(nome_arquivo,dicionario_ativos):
     folha_carteira = planilha["Carteira"]
     criar_cabecalho(folha_carteira)
     criar_corpo_carteira(folha_carteira,dicionario_ativos)
+    estilo_cabecalho(folha_carteira)
     #Salva o arquivo
     planilha.save(nome_arquivo)
 
