@@ -4,23 +4,19 @@ import time
 dic = {"AMZN":"10", "KO":"10", "AAPL":"10", "PETR4.SA":"12"}
 
 def buscar_fator(dic):
-    dicionario_moeda = {}
     dicionario_fatores = {}
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_currency = ticket.info["currency"]
         if ticket_currency != "BRL":
-            dicionario_moeda[ativo] = ticket_currency+"BRL=X"
+            ticket_currency = ticket_currency+"BRL=X"
+            fator = yf.Ticker(ticket_currency)
+            fator_info = fator.info["regularMarketPrice"]
+            dicionario_fatores[ativo] = fator_info
         else:
-            dicionario_moeda[ativo] = ticket_currency 
-        for value in dicionario_moeda.values():
-            if value != "BRL":
-                fator = yf.Ticker(value)
-                fator_info = fator.info["regularMarketPrice"]
-                dicionario_fatores[ativo] = fator_info
-            else:
-                dicionario_fatores[ativo] = 1
-    return dicionario_fatores
+            dicionario_fatores[ativo] = 1
+    return print(dicionario_fatores)
+
 
 def conversao(ticket_hist, dic):
     #chama a função conversão para receber um dicionario com os fatores de correção de cada ativo 
