@@ -1,7 +1,9 @@
 import yfinance as yf
 import time
 
-def buscar_fator(ativo):
+dic = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
+
+def buscar_fator(ticket):
     """A função recebe uma string que é o código da ação no yahoo finance encontra a currency desse ativo e caso ele seja diferente de BRL executa uma concatenação e busca uma informação sobre o ativo
 
     Args:
@@ -9,8 +11,7 @@ def buscar_fator(ativo):
 
     Returns:
         float: Retorna um float que é o valor da moeda do ativo em relação ao real
-    """    
-    ticket=yf.Ticker(ativo)
+    """
     #encontra a moeda em que o ativos esta cotado
     ticket_currency = ticket.info["currency"]
     #caso não esteja cotado em BRL o bloco abaixo concatena a string da moeda em que o ativo esta cotado com "BRL=X"
@@ -33,14 +34,11 @@ def conversao(ticket_hist, fator):
 
     Returns:
         pandas.core.frame.DataFrame: retorna o dataframe com as colunas alteradas
-    """    
-    #se o fator de correção for diferente de um aplica esse fator nas colunas desejadas do dataframe se for igual a 1 apenas retorna o primeiro argumento
-    if fator != 1:
-        ticket_hist  
-        ticket_hist ["Open"] = fator * ticket_hist ["Open"]
-        ticket_hist ["High"] = fator * ticket_hist ["High"]
-        ticket_hist ["Low"] = fator * ticket_hist ["Low"]
-        ticket_hist ["Close"] = fator * ticket_hist ["Close"]
+    """
+    ticket_hist ["Open"] = fator * ticket_hist ["Open"]
+    ticket_hist ["High"] = fator * ticket_hist ["High"]
+    ticket_hist ["Low"] = fator * ticket_hist ["Low"]
+    ticket_hist ["Close"] = fator * ticket_hist ["Close"]
     return ticket_hist
 
 def cotacao_semana(dic):
@@ -54,9 +52,8 @@ def cotacao_semana(dic):
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_hist = ticket.history(period="5d")
-        print(type(ticket_hist))
         #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
-        fator = buscar_fator(ativo)
+        fator = buscar_fator(ticket)
         #chama a função conversao que usa o resultado de buscar_fator para converter as colunas necessarias para real quando o ativo esta cotado em outra moeda
         ticket_hist = conversao(ticket_hist, fator)
 
@@ -82,4 +79,8 @@ def cotacao_anual(dic):
     return dicionario_anual
 
 # use o dicionario a baixo como teste
-# dic = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
+
+print(cotacao_semana(dic))
+
+
+# criar um dicionario com os fatores de conversao mais comum e consultar o dicionario caso uma moeda não esteja no dicionario adicione o valor ao dicionario
