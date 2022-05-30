@@ -2,7 +2,6 @@ import yfinance as yf
 import time
 
 dic = {"AMZN":"100"}
-fator_conversao = 2
 
 
 def buscar_fator(dic):
@@ -31,8 +30,11 @@ def conversao(ticket_hist, dic):
     for ativo in dic.keys():
         fator_conversao = fatores[ativo]
         df = ticket_hist  
-        df["Close"] = fator_conversao * df["Close"]
         df["Open"] = fator_conversao * df["Open"]
+        df["High"] = fator_conversao * df["High"]
+        df["Low"] = fator_conversao * df["Low"]
+        df["Close"] = fator_conversao * df["Close"]
+
     return ticket_hist
 
 def cotacao_semana(dic):
