@@ -19,30 +19,47 @@ def criar_cabecalho(nome_arquivo):
     #Salva o arquivo
     planilha.save(nome_arquivo)
 
-def criar_tabela_ativo(nome_arquivo,ativo,data_frame,linha_inicial):
+def criar_tabela_ativo(nome_arquivo,ativo,data_frame,linha_inicial,coluna_inicial):
     #Abre o arquivo
     planilha = load_workbook(nome_arquivo)
     #Seleciona a folha
     carteira = planilha["Carteira"]
     #Cria o título do ativo
     linha_titulo = linha_inicial + 1
-    carteira.cell(row = linha_titulo,column = 3, value = ativo)
-    carteira.merge_cells(start_row = linha_titulo, start_column = 3, end_row = linha_titulo+1, end_column = 10)
+    carteira.cell(row = linha_titulo,column = coluna_inicial, value = ativo)
+    carteira.merge_cells(start_row = linha_titulo, start_column = coluna_inicial, end_row = linha_titulo+1, end_column = coluna_inicial +  7)
     #Define a linha inicial da tabela
-    linha_tabela = linha_inicial + 3 
-    carteira.cell(row = linha_tabela,column = 3, value = None)
+    linha_tabela = linha_inicial + 4 
+    carteira.cell(row = linha_tabela,column = coluna_inicial, value = None)
+    #Transforma o dataframe em uma lista de linhas
+    linhas_data_frame = list(dataframe_to_rows(data_frame,index=True,header=True))
+    """
+    O rótulo date estava uma linha abaixo como frozen list, foi necessário converte-lo e adicioná-lo a linha correta
+    """
+    lista_rotulo_date = list(linhas_data_frame[1])
+    rotulo_date =  str(lista_rotulo_date[0])
+    linhas_data_frame[0][0] = rotulo_date
+    del linhas_data_frame[1]
     #Acrescenta a tabela dataframe
-    for linha in dataframe_to_rows(data_frame,index=True,header=True):
-        carteira.append(linha)
+    for linha in linhas_data_frame:
+        #Pega cada lista e coloca em uma linha, com cada item em uma coluna
+        coluna_item = coluna_inicial
+        for item_coluna in linha:
+            carteira.cell(row = linha_tabela,column = coluna_item, value = item_coluna)
+            coluna_item += 1
+        linha_tabela += 1    
     #Salva o arquivo
     planilha.save(nome_arquivo)
 
 def criar_corpo_carteira(nome_arquivo,dicionario_ativos):
+    #Puxa o dicionario de ativos e seus dataframes
     cotacao = cotacao_semana(dicionario_ativos)
+    #Define a linha que termina o cabeçalho
     linha_inicial = 9
     for ativo,data_frame in cotacao.items():
-        criar_tabela_ativo(nome_arquivo,ativo,data_frame,linha_inicial)
-        linha_inicial += 13
+        criar_tabela_ativo(nome_arquivo,ativo,data_frame,linha_inicial,3)
+        #Define o começo do próximo bloco
+        linha_inicial += 12
 
 nome_arquivo = "Teste.xlsx"
 criar_planilha(nome_arquivo)
