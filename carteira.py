@@ -4,6 +4,11 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from criar_excel import criar_planilha
 
 def criar_cabecalho(nome_arquivo):
+    """Cria o cabeçalho da planilha
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """    
     #Abre o arquivo
     planilha = load_workbook(nome_arquivo)
     #Seleciona a folha
@@ -20,6 +25,15 @@ def criar_cabecalho(nome_arquivo):
     planilha.save(nome_arquivo)
 
 def criar_tabela_ativo(nome_arquivo,ativo,data_frame,linha_inicial,coluna_inicial):
+    """Cria na planilha a tabela por ativo
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+        ativo (string): nome do ativo que será o título
+        data_frame (dataframe): dataframe que se tornará a tabela
+        linha_inicial (int): linha em que começa o bloco da tabela
+        coluna_inicial (int): coluna em que começa o bloco
+    """    
     #Abre o arquivo
     planilha = load_workbook(nome_arquivo)
     #Seleciona a folha
@@ -52,6 +66,12 @@ def criar_tabela_ativo(nome_arquivo,ativo,data_frame,linha_inicial,coluna_inicia
     planilha.save(nome_arquivo)
 
 def criar_corpo_carteira(nome_arquivo,dicionario_ativos):
+    """Cria todas as tabelas por cada ativo
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+        dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
+    """    
     #Puxa o dicionario de ativos e seus dataframes
     cotacao = cotacao_semana(dicionario_ativos)
     #Define a linha que termina o cabeçalho
