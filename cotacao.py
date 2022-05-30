@@ -3,6 +3,7 @@ import time
 
 dic = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
 
+
 def buscar_fator(ticket):
     """A função recebe uma string que é o código da ação no yahoo finance encontra a currency desse ativo e caso ele seja diferente de BRL executa uma concatenação e busca uma informação sobre o ativo
 
@@ -65,12 +66,12 @@ def cotacao_anual(dic):
     Args:
         dic (Dictionary): Espera um dicionário onde as chaves são os códigos de cada ativo
     Returns:
-        Dictionary: Retorna um dicionario onde cada chave é um ativo e cada valor é um dataframe das informações mais relevantes do ativo no último ano
+        Dictionary: Retorna um dicionario onde cada chave é um ativo e cada valor é um dataframe das informações mais relevantes do ativo no intervalo de semana a semana do último ano
     """  
     dicionario_anual={}
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
-        ticket_hist = ticket.history(period="1y")
+        ticket_hist = ticket.history(period="1y", interval="1wk")
         #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
         fator = buscar_fator(ativo)
         #chama a funçao conversao para corrigir o valor das colunas necessarias para real quando o ativo estiver cotado em outra moeda
@@ -84,3 +85,4 @@ print(cotacao_semana(dic))
 
 
 # criar um dicionario com os fatores de conversao mais comum e consultar o dicionario caso uma moeda não esteja no dicionario adicione o valor ao dicionario
+
