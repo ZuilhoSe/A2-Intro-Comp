@@ -1,7 +1,7 @@
 import yfinance as yf
 import time
 
-dic = {"PETR4.SA":"10"}
+dic = {"PETR4.SA":"10", "AMZN":"100"}
 
 fator_conversao = 2
 
@@ -40,7 +40,7 @@ def cotacao_anual(dic):
     return dicionario_anual
 
 def conversao(ticket_hist):
-    df = ticket_hist
+    df = ticket_hist  
     df["Close"] = fator_conversao * df["Close"]
     df["Open"] = fator_conversao * df["Open"]
     return ticket_hist
@@ -52,10 +52,18 @@ def fator_conversao(dic):
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_currency = ticket.info["currency"]
-        dicionario_moeda[ativo] = ticket_currency
-    return dicionario_moeda
+        if ticket_currency != "BRL":
+            dicionario_moeda[ativo] = ticket_currency+"BRL=X"
+        else:
+            dicionario_moeda[ativo] = ticket_currency 
+    for value in dicionario_moeda.values():
+        fator = yf.Ticker(value)
+        fator_info = fator.info["regularMarketPrice"] 
+    return dicionario_moeda, fator_info
 
-#print(fator_conversao(dic))
+
+print(fator_conversao(dic))
+
 
 
 
