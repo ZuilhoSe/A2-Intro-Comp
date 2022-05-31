@@ -78,6 +78,12 @@ def estilos_tabela_ativo():
     estilo_header.font = Font(name = "Arial Black", color = "00FFFFFF", size = 10)
     estilo_header.alignment = Alignment(horizontal = "center", vertical = "center")
     estilos["estilo_header"] = estilo_header
+    #Define o estilo das linhas da tabela principal
+    estilo_linhas_tabela = NamedStyle(name = "estilo_linhas_tabela")
+    estilo_linhas_tabela.fill = PatternFill(fill_type = "solid", fgColor = "00FFFFFF")
+    estilo_linhas_tabela.font = Font(name = "Arial", color = "00000000", size = 9)
+    estilo_linhas_tabela.alignment = Alignment(horizontal = "center", vertical = "center")
+    estilos["estilo_linhas_tabela"] = estilo_linhas_tabela
     
     return estilos
 
@@ -112,6 +118,9 @@ def estilizar_tabela_ativo(nome_folha, estilos_tabela_ativos, linha_inicial, col
     #Estiliza os headers
     estilo_header = estilos_tabela_ativos["estilo_header"]
     aplicar_estilo_area(nome_folha, linha_inicial+4, linha_inicial+4, coluna_inicial+2, coluna_inicial+9, estilo_header)
+    #Estiliza as linhas da tabela
+    estilo_linhas_tabela = estilos_tabela_ativos["estilo_linhas_tabela"]
+    aplicar_estilo_area(nome_folha,linha_inicial+5, linha_inicial+9, coluna_inicial+2, coluna_inicial+9, estilo_linhas_tabela)
 
 
 def formatar_valor(nome_folha, formato, linha_inicial, linha_final, coluna_inicial, coluna_final):
@@ -132,6 +141,23 @@ def formatar_valor(nome_folha, formato, linha_inicial, linha_final, coluna_inici
                 nome_folha.cell(row = linha, column = coluna).number_format = "R$ #,##0.00"
             elif formato == "Data":
                 nome_folha.cell(row = linha, column = coluna).number_format = "dd-mm-yyyy"
+def ajustar_largura_colunas(nome_folha):
+    nome_folha.column_dimensions['A'].width = 2
+    nome_folha.column_dimensions['B'].width = 7
+    nome_folha.column_dimensions['C'].width = 10
+    nome_folha.column_dimensions['D'].width = 15
+    nome_folha.column_dimensions['E'].width = 15
+    nome_folha.column_dimensions['F'].width = 15
+    nome_folha.column_dimensions['G'].width = 15
+    nome_folha.column_dimensions['H'].width = 21
+    nome_folha.column_dimensions['I'].width = 15
+    nome_folha.column_dimensions['J'].width = 15
+    nome_folha.column_dimensions['K'].width = 2
+    nome_folha.column_dimensions['L'].width = 20
+    nome_folha.column_dimensions['M'].width = 20
+    nome_folha.column_dimensions['N'].width = 7.2
+    nome_folha.column_dimensions['O'].width = 7.2
+    nome_folha.column_dimensions['P'].width = 2
 
 #Funções de adição dos dados
 def criar_cabecalho(nome_folha):
@@ -260,10 +286,6 @@ def carteira(nome_arquivo, dicionario_ativos):
     folha_carteira = planilha["Carteira"]
     criar_cabecalho(folha_carteira)
     criar_corpo_carteira(folha_carteira, dicionario_ativos)
+    ajustar_largura_colunas(folha_carteira)
     #Salva o arquivo
     planilha.save(nome_arquivo)
-
-nome_arquivo = "Teste.xlsx"
-dicionario_teste = {"KO":"98987","MGLU3.SA":"1000000"}
-criar_planilha(nome_arquivo)
-carteira(nome_arquivo,dicionario_teste)
