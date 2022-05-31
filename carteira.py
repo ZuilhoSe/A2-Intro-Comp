@@ -5,6 +5,23 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from criar_excel import criar_planilha
 
 #Funções de estilo da carteira
+def aplicar_estilo_area(nome_folha, linha_inicial, linha_final, coluna_inicial, coluna_final, estilo):
+    """Aplica um estilo de formatação de célula a uma range de células
+
+    Args:
+        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
+        linha_inicial (int): 
+        linha_final (int): 
+        coluna_inicial (int): 
+        coluna_final (int): 
+        estilo (openpyxl.style): deve estar no formato  estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
+    """    
+    linhas = range(linha_inicial, linha_final + 1)
+    colunas = range(coluna_inicial, coluna_final + 1)
+    for linha in linhas:
+        for coluna in colunas:
+            nome_folha.cell(row = linha, column = coluna).style = estilo
+
 def estilizar_cabecalho(nome_folha):
     """Estiliza o cabeçalho da carteira
 
@@ -13,25 +30,21 @@ def estilizar_cabecalho(nome_folha):
     """    
     #Define o estilo utilizado em todo o cabeçalho
     estilo_padrao_cabecalho = NamedStyle(name = "estilo_padrao_cabecalho")
-    estilo_padrao_cabecalho.fill = PatternFill(fill_type="solid",fgColor="00333333")
+    estilo_padrao_cabecalho.fill = PatternFill(fill_type = "solid", fgColor="00333333")
     #Aplica o estilo em todo o cabeçalho
-    linhas_cabecalho = range(2,9)
-    colunas_cabecalho = range(1,17)
-    for linha in linhas_cabecalho:
-        for coluna in colunas_cabecalho:
-            nome_folha.cell(row = linha, column = coluna).style = estilo_padrao_cabecalho
+    aplicar_estilo_area(nome_folha, 2, 8, 1, 16, estilo_padrao_cabecalho)
     #Define o estilo do título do título da carteira
     estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
-    estilo_titulo_carteira.font = Font(name = "Arial Black",size = 24,color="FFFFFF")
-    estilo_titulo_carteira.fill = PatternFill(fill_type="solid",fgColor="00333333")
-    estilo_titulo_carteira.alignment = Alignment(horizontal="center",vertical="center")
+    estilo_titulo_carteira.font = Font(name = "Arial Black", size = 24,color = "FFFFFF")
+    estilo_titulo_carteira.fill = PatternFill(fill_type = "solid", fgColor="00333333")
+    estilo_titulo_carteira.alignment = Alignment(horizontal = "center", vertical = "center")
     #Aplica o estilo somente no título da carteira
     nome_folha["B3"].style = estilo_titulo_carteira
     #Define o estilo da célula "Valor Total:"
     estilo_valor_total = NamedStyle(name = "estilo_valor_total")
-    estilo_valor_total.font = Font(name = "Arial Black",size = 24)
-    estilo_valor_total.alignment = Alignment(horizontal="center",vertical="center")
-    estilo_valor_total.fill = PatternFill(fill_type="solid",fgColor="00C0C0C0")
+    estilo_valor_total.font = Font(name = "Arial Black", size = 24)
+    estilo_valor_total.alignment = Alignment(horizontal = "center", vertical = "center")
+    estilo_valor_total.fill = PatternFill(fill_type="solid", fgColor="00C0C0C0")
     #Aplica o estilo somente na célula "Valor Total:"
     nome_folha["L3"].style = estilo_valor_total
 
@@ -41,28 +54,34 @@ def estilos_tabela_ativo():
     estilos = dict()
     #Define o estilo utilizado da margem da tabela
     estilo_margem = NamedStyle(name = "estilo_margem")
-    estilo_margem.fill = PatternFill(fill_type="solid",fgColor="00333333")
+    estilo_margem.fill = PatternFill(fill_type = "solid", fgColor = "00333333")
     estilos["estilo_margem"] = estilo_margem
     #Define o estilo do background
     estilo_background = NamedStyle(name = "estilo_background")
-    estilo_background.fill = PatternFill(fill_type="solid",fgColor="00808080")
+    estilo_background.fill = PatternFill(fill_type = "solid", fgColor = "00808080")
     estilos["estilo_background"] = estilo_background
     #Define o estilo dos títulos
     estilo_titulos = NamedStyle(name = "estilo_titulos")
-    estilo_titulos.fill = PatternFill(fill_type="solid",fgColor="00C0C0C0")
+    estilo_titulos.fill = PatternFill(fill_type = "solid", fgColor = "00C0C0C0")
     estilo_titulos.font = Font(name = "Arial Black")
-    estilo_titulos.alignment = Alignment(horizontal="center",vertical="center")
+    estilo_titulos.alignment = Alignment(horizontal = "center", vertical="center")
     estilos["estilo_titulos"] = estilo_titulos
     #Define o estilo dos blocos
     estilo_blocos = NamedStyle(name = "estilo_blocos")
-    estilo_blocos.fill = PatternFill(fill_type="solid",fgColor="FFFFFF")
+    estilo_blocos.fill = PatternFill(fill_type = "solid", fgColor = "00FFFFFF")
     estilo_blocos.font = Font(name = "Arial Black")
-    estilo_blocos.alignment = Alignment(horizontal="center",vertical="center")
+    estilo_blocos.alignment = Alignment(horizontal = "center", vertical = "center")
     estilos["estilo_blocos"] = estilo_blocos
+    #Define o estilo do header da tabela principal
+    estilo_header = NamedStyle(name = "estilo_header")
+    estilo_header.fill = PatternFill(fill_type = "solid", fgColor = "00000000")
+    estilo_header.font = Font(name = "Arial Black", color = "00FFFFFF", size = 10)
+    estilo_header.alignment = Alignment(horizontal = "center", vertical = "center")
+    estilos["estilo_header"] = estilo_header
     
     return estilos
 
-def estilizar_tabela_ativo(nome_folha,estilos_tabela_ativos,linha_inicial,coluna_inicial):
+def estilizar_tabela_ativo(nome_folha, estilos_tabela_ativos, linha_inicial, coluna_inicial):
     """Estiliza as tabelas por ativo
 
     Args:
@@ -73,18 +92,10 @@ def estilizar_tabela_ativo(nome_folha,estilos_tabela_ativos,linha_inicial,coluna
     """    
     #Estiliza a margem
     estilo_margem = estilos_tabela_ativos["estilo_margem"]
-    linhas_margem = range(linha_inicial,linha_inicial+12)
-    colunas_margem = range(coluna_inicial,coluna_inicial+16)
-    for linha in linhas_margem:
-        for coluna in colunas_margem:
-            nome_folha.cell(row = linha, column = coluna).style = estilo_margem
+    aplicar_estilo_area(nome_folha, linha_inicial, linha_inicial+11, coluna_inicial, coluna_inicial+15,estilo_margem)
     #Estiliza o background
     estilo_background = estilos_tabela_ativos["estilo_background"]
-    linhas_background = range(linha_inicial,linha_inicial+11)
-    colunas_background = range(coluna_inicial+1,coluna_inicial+15)
-    for linha in linhas_background:
-        for coluna in colunas_background:
-            nome_folha.cell(row = linha, column = coluna).style = estilo_background
+    aplicar_estilo_area(nome_folha, linha_inicial, linha_inicial+10, coluna_inicial+1, coluna_inicial+14, estilo_background)
     #Estiliza os titulos
     estilo_titulos = estilos_tabela_ativos["estilo_titulos"]
     #Nome da ação
@@ -98,8 +109,12 @@ def estilizar_tabela_ativo(nome_folha,estilos_tabela_ativos,linha_inicial,coluna
     nome_folha.cell(row = linha_inicial+1, column = coluna_inicial+12).style = estilo_blocos
     nome_folha.cell(row = linha_inicial+4, column = coluna_inicial+12).style = estilo_blocos
     nome_folha.cell(row = linha_inicial+7, column = coluna_inicial+12).style = estilo_blocos
+    #Estiliza os headers
+    estilo_header = estilos_tabela_ativos["estilo_header"]
+    aplicar_estilo_area(nome_folha, linha_inicial+4, linha_inicial+4, coluna_inicial+2, coluna_inicial+9, estilo_header)
 
-def formatar_real(nome_folha,linha_inicial,linha_final,coluna_inicial,coluna_final):
+
+def formatar_valor(nome_folha, formato, linha_inicial, linha_final, coluna_inicial, coluna_final):
     """Formata um range de células como real
 
     Args:
@@ -109,11 +124,14 @@ def formatar_real(nome_folha,linha_inicial,linha_final,coluna_inicial,coluna_fin
         coluna_inicial (int): 
         coluna_final (int): 
     """    
-    linhas_formatar = range(linha_inicial,linha_final+1)
-    colunas_formatar = range(coluna_inicial,coluna_final+1)
+    linhas_formatar = range(linha_inicial, linha_final+1)
+    colunas_formatar = range(coluna_inicial, coluna_final+1)
     for linha in linhas_formatar:
         for coluna in colunas_formatar:
-            nome_folha.cell(row = linha, column = coluna).number_format = "R$ #.##0,00"
+            if formato == "Real":
+                nome_folha.cell(row = linha, column = coluna).number_format = "R$ #,##0.00"
+            elif formato == "Data":
+                nome_folha.cell(row = linha, column = coluna).number_format = "dd-mm-yyyy"
 
 #Funções de adição dos dados
 def criar_cabecalho(nome_folha):
@@ -132,7 +150,7 @@ def criar_cabecalho(nome_folha):
     nome_folha.merge_cells("N3:O7")
     estilizar_cabecalho(nome_folha)
 
-def criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,coluna_inicial):
+def criar_tabela_ativo(nome_folha, ativo, data_frame, linha_inicial, coluna_inicial):
     """Cria na planilha a tabela por ativo
 
     Args:
@@ -162,13 +180,14 @@ def criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,coluna_inicial)
         #Pega cada lista e coloca em uma linha, com cada item em uma coluna
         coluna_item = coluna_inicial
         for item_coluna in linha:
-            nome_folha.cell(row = linha_tabela,column = coluna_item, value = item_coluna)
+            nome_folha.cell(row = linha_tabela, column = coluna_item, value = item_coluna)
             coluna_item += 1
         linha_tabela += 1
     #Formata os valores ao tipo correto
-    formatar_real(nome_folha,linha_inicial + 5,linha_inicial + 9,coluna_inicial + 1,coluna_inicial + 6)
+    formatar_valor(nome_folha, "Real", linha_inicial + 5, linha_inicial + 9, coluna_inicial + 1, coluna_inicial + 6)
+    formatar_valor(nome_folha, "Data", linha_inicial + 5, linha_inicial + 9, coluna_inicial, coluna_inicial)
 
-def criar_blocos(linha_inicial,coluna_inicial,titulo,valor,nome_folha):
+def criar_blocos(linha_inicial, coluna_inicial, titulo, valor, nome_folha):
     """Cria um dois blocos no excel, com tammanho 2x2 um ao lado do outro
 
     Args:
@@ -183,7 +202,7 @@ def criar_blocos(linha_inicial,coluna_inicial,titulo,valor,nome_folha):
     nome_folha.cell(row = linha_inicial,column = coluna_inicial+1, value = valor)
     nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial+1, end_row = linha_inicial+1, end_column = coluna_inicial +  2)
 
-def criar_resumo(nome_folha,valor_total,valor_ultima_cotacao,quantidade,linha_inicial,coluna_inicial):
+def criar_resumo(nome_folha, valor_total, valor_ultima_cotacao, quantidade, linha_inicial, coluna_inicial):
     """Cria os blocos de resumo do ativo
 
     Args:
@@ -196,15 +215,17 @@ def criar_resumo(nome_folha,valor_total,valor_ultima_cotacao,quantidade,linha_in
     """    
     #Cria os blocos do Total Anual
     linha_total = linha_inicial +1
-    criar_blocos(linha_total,coluna_inicial,"Total Atual",valor_total,nome_folha)
+    criar_blocos(linha_total, coluna_inicial, "Total Atual", valor_total, nome_folha)
+    formatar_valor(nome_folha, "Real", linha_total,linha_total, coluna_inicial + 1, coluna_inicial + 1)
     #Cria os blocos de Qtd. Ativos
     linha_quantidade = linha_inicial + 4
-    criar_blocos(linha_quantidade,coluna_inicial,"Qtd. Ativos",quantidade,nome_folha)
+    criar_blocos(linha_quantidade, coluna_inicial, "Qtd. Ativos", quantidade, nome_folha)
     #Cria o bloco de Última Cotação
     linha_ultima_cotacao = linha_inicial + 7
-    criar_blocos(linha_ultima_cotacao,coluna_inicial,"Última Cotação",valor_ultima_cotacao,nome_folha)
+    criar_blocos(linha_ultima_cotacao, coluna_inicial, "Última Cotação", valor_ultima_cotacao, nome_folha)
+    formatar_valor(nome_folha, "Real", linha_ultima_cotacao, linha_ultima_cotacao, coluna_inicial + 1, coluna_inicial + 1)
 
-def criar_corpo_carteira(nome_folha,dicionario_ativos):
+def criar_corpo_carteira(nome_folha, dicionario_ativos):
     """Cria todas as tabelas por cada ativo
 
     Args:
@@ -218,15 +239,15 @@ def criar_corpo_carteira(nome_folha,dicionario_ativos):
     #Define os estilos para estilizar as tabelas
     estilos = estilos_tabela_ativo()
     #Para cada ativo cria os blocos
-    for ativo,data_frame in cotacao.items():
-        estilizar_tabela_ativo(nome_folha,estilos,linha_inicial,1)
-        criar_tabela_ativo(nome_folha,ativo,data_frame,linha_inicial,3)
-        criar_resumo(nome_folha,1,1,1,linha_inicial,12)
+    for ativo, data_frame in cotacao.items():
+        estilizar_tabela_ativo(nome_folha, estilos, linha_inicial, 1)
+        criar_tabela_ativo(nome_folha, ativo, data_frame, linha_inicial, 3)
+        criar_resumo(nome_folha, 1, 1, 1, linha_inicial, 12)
         #Define o começo do próximo bloco
         linha_inicial += 12
 
 #Função final
-def carteira(nome_arquivo,dicionario_ativos):
+def carteira(nome_arquivo, dicionario_ativos):
     """Realiza todas as modificações na folha carteira
 
     Args:
@@ -238,7 +259,7 @@ def carteira(nome_arquivo,dicionario_ativos):
     #Seleciona a folha da carteira
     folha_carteira = planilha["Carteira"]
     criar_cabecalho(folha_carteira)
-    criar_corpo_carteira(folha_carteira,dicionario_ativos)
+    criar_corpo_carteira(folha_carteira, dicionario_ativos)
     #Salva o arquivo
     planilha.save(nome_arquivo)
 
