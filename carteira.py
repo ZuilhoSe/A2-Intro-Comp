@@ -2,7 +2,6 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle,PatternFill, Border, Side, Alignment, Protection, Font
 from cotacao import cotacao_semana
 from openpyxl.utils.dataframe import dataframe_to_rows
-from criar_excel import criar_planilha
 
 #Funções de estilo da carteira
 def aplicar_estilo_area(nome_folha, linha_inicial, linha_final, coluna_inicial, coluna_final, estilo):
