@@ -40,6 +40,7 @@ def conversao(ticket_hist, fator):
     ticket_hist ["Close"] = fator * ticket_hist ["Close"]
     return ticket_hist
 
+
 def cotacao_semana(dic):
     """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação do ativo na última semana útil
     Args:
@@ -49,6 +50,7 @@ def cotacao_semana(dic):
     """    
     dicionario_semana = {}
     for ativo in dic.keys():
+        time1 = time.time()
         ticket=yf.Ticker(ativo)
         ticket_hist = ticket.history(period="5d")
         #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
@@ -57,6 +59,8 @@ def cotacao_semana(dic):
         ticket_hist = conversao(ticket_hist, fator)
 
         dicionario_semana[ativo] = ticket_hist
+    time2 = time.time()
+    print(f"{time2 - time1 } segundos para execução")
     return dicionario_semana
 
 def cotacao_anual(dic):
@@ -77,19 +81,28 @@ def cotacao_anual(dic):
         dicionario_anual[ativo] = ticket_hist
     return dicionario_anual
 
-# use o dicionario a baixo como teste "PETR4.SA":"10",
-dic = {"AMZN":"10", "AAPL":"100", "KO":"100"}
+# use o dicionario a baixo como teste 
+#dic = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
 
 
-def cotação_atual(dic):
+def cotacao_atual(dic):
+    """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação atual do ativo
+
+    Args:
+        dic (Dictionary): Espera um dicionário onde as chaves são os códigos de cada ativo
+
+    Returns:
+        Dictionary: Retorna um dicionário onde cada chave é o código de um ativo e os valores são o valor atual de cada ativo convertido para real
+    """    
     dicionario_atual={}
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_info=ticket.info["regularMarketPrice"]
+        #encontra o valor da moeda em que o ativo está cotado em relação ao real
         fator = buscar_fator(ticket)
-        ticket_info = conversao(ticket_info,fator)
+        #converte o valor do ativo para real 
+        ticket_info = ticket_info*fator
         dicionario_atual[ativo] = ticket_info
     return dicionario_atual
 
-print(cotacao_semana(dic))
 
