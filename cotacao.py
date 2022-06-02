@@ -50,7 +50,6 @@ def cotacao_semana(dic):
     """    
     dicionario_semana = {}
     for ativo in dic.keys():
-        time1 = time.time()
         ticket=yf.Ticker(ativo)
         ticket_hist = ticket.history(period="5d")
         #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
@@ -59,8 +58,6 @@ def cotacao_semana(dic):
         ticket_hist = conversao(ticket_hist, fator)
 
         dicionario_semana[ativo] = ticket_hist
-    time2 = time.time()
-    print(f"{time2 - time1 } segundos para execução")
     return dicionario_semana
 
 def cotacao_anual(dic):
