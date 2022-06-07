@@ -121,7 +121,6 @@ footer{
       align-items: center;
       justify-content: center;
       gap: 350px;
-      z-index: -1;
 
 }
 #gh:hover{
