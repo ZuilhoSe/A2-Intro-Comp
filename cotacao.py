@@ -72,7 +72,7 @@ def cotacao_anual(dic):
     dicionario_anual={}
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
-        ticket_hist = ticket.history(period="1y")
+        ticket_hist = ticket.history(period="1y", interval="1wk")
         #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
         fator = buscar_fator(ativo)
         #chama a funçao conversao para corrigir o valor das colunas necessarias para real quando o ativo estiver cotado em outra moeda

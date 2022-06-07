@@ -1,26 +1,30 @@
-from openpyxl import load_workbook
-from openpyxl.chart import BarChart, Series, Reference
-from openpyxl.chart.marker import DataPoint
-from openpyxl.chart.shapes import GraphicalProperties
-from openpyxl.chart.axis import TextAxis, ChartLines
-from openpyxl.chart.chartspace import ChartSpace, ChartContainer
-from openpyxl.chart.plotarea import PlotArea
-from openpyxl.drawing.line import LineProperties
-from openpyxl.chart.layout import Layout, ManualLayout
 from datetime import datetime, timedelta
-from pyparsing import col
-import yfinance as yf
 import locale
 import calendar
+import yfinance as yf
+from openpyxl import load_workbook
+from openpyxl.chart import BarChart, StockChart, Reference
+from openpyxl.chart.marker import DataPoint
+from openpyxl.chart.shapes import GraphicalProperties
+from openpyxl.chart.axis import ChartLines
+from openpyxl.chart.updown_bars import UpDownBars
+from openpyxl.chart.data_source import NumData, NumVal
+from openpyxl.drawing.line import LineProperties
+from openpyxl.styles import NamedStyle,PatternFill, Font
 from carteira import aplicar_estilo_area
-from openpyxl.styles import NamedStyle, PatternFill, Font
 
 from cotacao import cotacao_anual
 
 locale.setlocale(locale.LC_ALL, ("pt_BR", "utf-8"))
 
 def graf_barras(base, arquivo):
-    
+    """Gera um gráfico de barras em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
+
+    Args:
+        base (dict): Recebe um dict com o nome de uma ou mais ações como keys, não importando os valores relacionados
+        arquivo (str): Nome do arquivo excel onde será gerado o gráfico. Deve estar no formato ("nome.xlsx")
+    """    
+
     #O gráfico de barras mostra quanto uma ação subiu ou desceu de valor no último ano, e para isso devemos primeiro adquirir os dados pelo yfinance, e em seguida montar o gráfico
     
     #Primeiro, o código para pegar a data de um ano atrás:
@@ -60,10 +64,8 @@ def graf_barras(base, arquivo):
             final_altern = inicio_altern + timedelta(days=1)
             ticket_hist = ticket.history(start=inicio_altern, end=final_altern, debug = False)
             ticket_hist.fillna(-1, inplace = True)
-        print(ticket_hist)
-        valores_antigos[ativo] = ticket_hist.Close[0]
 
-    print(valores_antigos)
+        valores_antigos[ativo] = ticket_hist.Close[0]
     
     #Agora, fazemos o mesmo processo para os dados de cada ativo no dia atual
     valores_hoje = {}
@@ -79,15 +81,12 @@ def graf_barras(base, arquivo):
             ticket_hist.fillna(-1, inplace = True)
 
         valores_hoje[ativo] = ticket_hist.Close[0]
-
-    print(valores_hoje)
     
     #Agora, vamos fazer a matemágica para chegar nos dados necessários
     dados = []
     for chave in valores_antigos.keys():
         resultado = (valores_hoje[chave] / valores_antigos[chave]) - 1
         dados.append(resultado)
-    print(dados)
 
     #E as categorias sendo as chaves:
     categorias = []
@@ -143,27 +142,30 @@ def graf_barras(base, arquivo):
     #Estilizando
     bar_grafic.legend = None
     bar_grafic.style = 9
-    # bar_grafic.plot_area.graphicalProperties = GraphicalProperties(solidFill="36454F") 
     bar_grafic.x_axis.graphicalProperties = GraphicalProperties(ln=LineProperties(w=3))
     bar_grafic.y_axis.majorGridlines.graphicalProperties = GraphicalProperties(ln=LineProperties(prstDash="dash"))
-    
-    # estilo_esconder = NamedStyle(name = "estilo_esconder")
-    # estilo_esconder.fill = PatternFill(fill_type = "solid", fgColor="FFFFFF")
-    # estilo_esconder.font = Font(color="FFFFFF")
-    aplicar_estilo_area(estatisticas, 3, linha_d, 3, 4, "estilo_esconder")
 
     #Adiciona o gráfico à planilha
-    estatisticas.add_chart(bar_grafic, "F3")
+    estatisticas.add_chart(bar_grafic, "B3")
     planilha.save(arquivo)
+
     
-    print("Cabou")
-
-
 
 def graf_stock(base, arquivo):
+    """Gera um gráfico do tipo Stock em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
+
+    Args:
+        base (dict): Recebe um dicionário com o nome das ações como Keys, e como valor um dataframe com os dados open-close-high-low da respectiva ação
+        arquivo (str): Nome do arquivo excel onde será gerado o gráfico. Deve estar no formato ("nome.xlsx")
+    """    
 
     # Essa função irá criar um Stock Chart para cada ativo com as informações de cada um no último ano, de 
-    # semana a semana
+    # semana a semana. Não há como inserir uma legenda explicativa no gráfico, mas ele deve ser lido assim:
+    # As linhas determinam o preço mais alto e mais baixo que a ação atingiu em cada dia.
+    # Caso a caixa esteja clara, isso indica um aumento no preço, logo a extremidade inferior da caixa
+    # indica o valor de abertura, e a extremidade superior indica o valor de fechamento. Caso a caixa
+    # esteja escura, houve um decrescimento, logo a extremidade superior indica o valor de abertura,
+    # e a inferior indica o valor de fechamento.
 
     # Vamos começar importando a planilha para inserir os dados nela.
     planilha = load_workbook(arquivo)
@@ -183,37 +185,99 @@ def graf_stock(base, arquivo):
         
         linha = 2
         coluna = 9 * contador #Perceba que os dados são inseridos em colunas múltiplas de 9
+        estatisticas.cell(row=linha, column=coluna, value="Date")
         for item in dataframe.index:
-            data = item.strftime("%d/%m/%y")
+            item = item.strftime("%Y-%m-%d")
             linha += 1
-            estatisticas.cell(row=linha, column=coluna, value=data)
+            estatisticas.cell(row=linha, column=coluna, value=item)
         
         linha = 2
         coluna += 1
+        estatisticas.cell(row=linha, column=coluna, value="Open")
         for item in dataframe.Open:
             linha += 1
             estatisticas.cell(row=linha, column=coluna, value=item)
 
         linha = 2
         coluna += 1
+        estatisticas.cell(row=linha, column=coluna, value="High")
         for item in dataframe.High:
             linha += 1
             estatisticas.cell(row=linha, column=coluna, value=item)
 
         linha = 2
         coluna += 1
+        estatisticas.cell(row=linha, column=coluna, value="Low")
         for item in dataframe.Low:
             linha += 1
             estatisticas.cell(row=linha, column=coluna, value=item)
 
         linha = 2
         coluna += 1
+        estatisticas.cell(row=linha, column=coluna, value="Close")
         for item in dataframe.Close:
             linha += 1
             estatisticas.cell(row=linha, column=coluna, value=item)
 
+    # Aqui cria-se um for para criar um gráfico para cada ativo. Para não sobrepor os gráficos, vamos
+    # diferenciá-los através de um contador. Usaremos do posicionamento dos dados ser em múltiplos de 9
+    # para localizá-los na planilha, e dessa forma não precisaremos nos referir a cada um em específico.
+    grafico = 0
+    for key in dict.keys():
+        grafico += 1
+        stock = StockChart()   
+
+        coluna = 9 * grafico
+        dataframe = dict[key]
+        num_linhas = len(dataframe.index)
+        dias = Reference(estatisticas, min_col=coluna, max_col=coluna, min_row=3, max_row=num_linhas)
+        
+        coluna_ini = coluna + 1
+        coluna_fin = coluna + 4
+        dados = Reference(estatisticas, min_col=coluna_ini, max_col=coluna_fin, min_row=2, max_row=num_linhas) 
+
+        
+        stock.add_data(dados, titles_from_data=True)
+        stock.set_categories(dias)
+
+        stock.hiLowLines = ChartLines()
+        stock.upDownBars = UpDownBars(gapWidth=10)
+        
+        # Adicionando o título e estilizando
+        for serie in stock.series:
+            serie.graphicalProperties.line.noFill = True
+
+        stock.title = f"{key} Stock Chart"
+        stock.legend = None
+        stock.style = 3
+        stock.y_axis.title = "Valor da Ação (em R$)"
+        stock.x_axis.title = "Data da Informação"
+        stock.x_axis.number_format = "dd-mm-yy"
+        stock.x_axis.majorTimeUnit = "years"
+        
+        # Devido um bug do Excel, é necessário criar uma Serie com valores especificos para que as linhas 
+        # high-low apareçam
+        pts = [NumVal(idx=i) for i in range(len(dados) - 1)]
+        cache = NumData(pt=pts)
+        stock.series[-1].val.numRef.numCache = cache
+
+        # Vamos organizar os gráficos stock em duas colunas, com uma leve matemágica:
+        if grafico % 2 != 0:
+            pos_coluna = "B"
+            pos_linha = int(2 + (16 * ((grafico + 1)/2)))
+        else:
+            pos_coluna = "L"
+            pos_linha = int(2 + (16*(grafico/2)))
+        estatisticas.add_chart(stock, f"{pos_coluna}{pos_linha}")
+
+    # Estilo para esconder os dados das tabelas inseridas na planilha
+    ultima_coluna = 10 + (9 * grafico)
+    estilo_esconder = NamedStyle(name = "estilo_esconder")
+    estilo_esconder.fill = PatternFill(fill_type = "solid", fgColor="FFFFFF")
+    estilo_esconder.font = Font(color="FFFFFF")
+    aplicar_estilo_area(estatisticas, 2, 366, 3, ultima_coluna, "estilo_esconder")
+
     planilha.save(arquivo)
-    print("Acabou!")
 
 """==========================================================================================="""
 
@@ -221,6 +285,5 @@ def graf_stock(base, arquivo):
 # Dicionário de teste:
 carteira = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
 
-# graf_barras(carteira, "teste.xlsx")
-
-graf_stock(carteira, "teste2.xlsx")
+graf_barras(carteira, "teste.xlsx")
+graf_stock(carteira, "teste.xlsx")
