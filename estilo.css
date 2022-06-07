@@ -36,8 +36,22 @@ table{
 }
 
 
-body {
-      background-color: #eeeeee;
+
+
+main {
+      /* make sure to cover the screen */
+      min-height: 100vh;
+    
+      /* need a solid bg to hide the footer */
+      background: #eeeeee;
+    
+      /* put on top */
+      position: relative;
+      z-index: 1;
+    
+      font: 16px/1.4 system-ui, sans-serif;
+      padding: 2rem;
+      padding-top: 0px;
 }
 
 th{
@@ -99,7 +113,7 @@ footer{
       margin: auto;
       height: 120px;
       background-color: #a0a0a0;
-      position: fixed;
+      position: sticky;
       bottom: 0px;
       left: 0px;
       display: flex;
@@ -107,6 +121,8 @@ footer{
       align-items: center;
       justify-content: center;
       gap: 350px;
+      z-index: -1;
+
 }
 #gh:hover{
       background-color: #909090;
@@ -123,3 +139,6 @@ footer{
       font-size: 0.8em;
       margin-bottom: 4px;
 }
+body {
+      margin: 0;
+    }
