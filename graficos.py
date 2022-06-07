@@ -8,6 +8,7 @@ from openpyxl.chart.plotarea import PlotArea
 from openpyxl.drawing.line import LineProperties
 from openpyxl.chart.layout import Layout, ManualLayout
 from datetime import datetime, timedelta
+from pyparsing import col
 import yfinance as yf
 import locale
 import calendar
@@ -51,7 +52,7 @@ def graf_barras(base, arquivo):
         # antes, repetidamente, até ser retornado um dataframe válido.
 
         # Também foi necessário tratar um caso em que o dataframe é retornado com alguns valores faltantes,
-        # com as células contendo NaN. Para isso foi usado o método fillna do dataframe, e um Or no while.
+        # com as células contendo NaN. Para isso foi usado o método fillna do dataframe, e um Or no While.
 
         while ticket_hist.size == 0 or ticket_hist.Close[0] == -1:
             dias += 1
@@ -59,7 +60,7 @@ def graf_barras(base, arquivo):
             final_altern = inicio_altern + timedelta(days=1)
             ticket_hist = ticket.history(start=inicio_altern, end=final_altern, debug = False)
             ticket_hist.fillna(-1, inplace = True)
-
+        print(ticket_hist)
         valores_antigos[ativo] = ticket_hist.Close[0]
 
     print(valores_antigos)
@@ -158,15 +159,61 @@ def graf_barras(base, arquivo):
     print("Cabou")
 
 
+
 def graf_stock(base, arquivo):
 
-    #Essa função irá criar um Stock Chart com as informações de cada ativo no último ano, de semana a semana
+    # Essa função irá criar um Stock Chart para cada ativo com as informações de cada um no último ano, de 
+    # semana a semana
 
-    #Para teste vou começar importando a função do módulo cotacao. Depois isso poderá ser descartado.
-    
+    # Vamos começar importando a planilha para inserir os dados nela.
+    planilha = load_workbook(arquivo)
+    estatisticas = planilha["Estatísticas"]
+
+    # Para teste vou importar a função do módulo cotacao. Depois isso poderá ser descartado.
     dict = cotacao_anual(base)
 
+    # É necessário iterar sobre o dataframe dado, para inserir os dados de cada StockChart na planilha.
+    # Para iterar sobre um dataframe sem utilizar muitos recursos de Pandas, foi utilizado um código mais
+    # grosseiro de For dentro de For, com um contador para separar os gráficos, um para as colunas, e um
+    # para as linhas.
+    contador = 0
+    for key in dict.keys():
+        contador += 1 #Este contador cresce de acordo com a quantidade de ativos que são dados
+        dataframe = dict[key]
+        
+        linha = 2
+        coluna = 9 * contador #Perceba que os dados são inseridos em colunas múltiplas de 9
+        for item in dataframe.index:
+            data = item.strftime("%d/%m/%y")
+            linha += 1
+            estatisticas.cell(row=linha, column=coluna, value=data)
+        
+        linha = 2
+        coluna += 1
+        for item in dataframe.Open:
+            linha += 1
+            estatisticas.cell(row=linha, column=coluna, value=item)
 
+        linha = 2
+        coluna += 1
+        for item in dataframe.High:
+            linha += 1
+            estatisticas.cell(row=linha, column=coluna, value=item)
+
+        linha = 2
+        coluna += 1
+        for item in dataframe.Low:
+            linha += 1
+            estatisticas.cell(row=linha, column=coluna, value=item)
+
+        linha = 2
+        coluna += 1
+        for item in dataframe.Close:
+            linha += 1
+            estatisticas.cell(row=linha, column=coluna, value=item)
+
+    planilha.save(arquivo)
+    print("Acabou!")
 
 """==========================================================================================="""
 
@@ -176,4 +223,4 @@ carteira = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
 
 # graf_barras(carteira, "teste.xlsx")
 
-# graf_stock(carteira, "teste2.xlsx")
+graf_stock(carteira, "teste2.xlsx")
