@@ -152,7 +152,26 @@ def graf_barras(base, arquivo):
     estatisticas.add_chart(bar_grafic, "B3")
     planilha.save(arquivo)
 
+
+
+def graf_linha(base, arquivo):
     
+    # Vamos começar importando a planilha para inserir os dados nela.
+    planilha = load_workbook(arquivo)
+    estatisticas = planilha["Estatísticas"]
+
+    # Inserindo os dados na planilha:
+    linha = 2
+    coluna_data = 6
+    coluna_valor = 7
+    estatisticas.cell(row=linha, column=coluna_data, value="Date")
+    estatisticas.cell(row=linha, column=coluna_valor, value="Valores")
+    for key in base.keys():
+        linha += 1
+        estatisticas.cell(row=linha, column=coluna_data, value=key)
+        estatisticas.cell(row=linha, column=coluna_valor, value=base[key])
+
+
 
 def graf_stock(base, arquivo):
     """Gera um gráfico do tipo Stock em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
@@ -222,9 +241,9 @@ def graf_stock(base, arquivo):
             linha += 1
             estatisticas.cell(row=linha, column=coluna, value=item)
 
-    # Aqui cria-se um for para criar um gráfico para cada ativo. Para não sobrepor os gráficos, vamos
-    # diferenciá-los através de um contador. Usaremos do posicionamento dos dados ser em múltiplos de 9
-    # para localizá-los na planilha, e dessa forma não precisaremos nos referir a cada um em específico.
+    # Aqui cria-se um gráfico para cada ativo. Para não sobrepor os gráficos, vamos diferenciá-los através 
+    # de um contador. Usaremos do posicionamento dos dados ser em múltiplos de 9 para localizá-los na planilha,
+    #  e dessa forma não precisaremos nos referir a cada um em específico.
     grafico = 0
     for key in dict.keys():
         grafico += 1
@@ -258,8 +277,8 @@ def graf_stock(base, arquivo):
         stock.x_axis.number_format = "dd-mm-yy"
         stock.x_axis.majorTimeUnit = "years"
         
-        # Devido um bug do Excel, é necessário criar uma Serie com valores especificos para que as linhas 
-        # high-low apareçam
+        # Devido um bug do Excel, é necessário criar uma Serie dummy com valores especificos 
+        # para que as linhas high-low apareçam
         pts = [NumVal(idx=i) for i in range(len(dados) - 1)]
         cache = NumData(pt=pts)
         stock.series[-1].val.numRef.numCache = cache
@@ -285,7 +304,7 @@ def graf_stock(base, arquivo):
 """==========================================================================================="""
 
 # # Teste:
-carteira = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
+# carteira = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
 
-graf_barras(carteira, "teste.xlsx")
+# graf_barras(carteira, "teste.xlsx")
 # graf_stock(carteira, "teste.xlsx")
