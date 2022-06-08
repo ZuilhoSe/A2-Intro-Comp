@@ -57,10 +57,11 @@ def graf_barras(base, arquivo):
 
         # Também foi necessário tratar um caso em que o dataframe é retornado com alguns valores faltantes,
         # com as células contendo NaN. Para isso foi usado o método fillna do dataframe, e um Or no While.
-
+        
+        dias_antigos = dias
         while ticket_hist.size == 0 or ticket_hist.Close[0] == -1:
-            dias += 1
-            inicio_altern = datetime.now() - timedelta(days=dias)
+            dias_antigos += 1
+            inicio_altern = datetime.now() - timedelta(days=dias_antigos)
             final_altern = inicio_altern + timedelta(days=1)
             ticket_hist = ticket.history(start=inicio_altern, end=final_altern, debug = False)
             ticket_hist.fillna(-1, inplace = True)
@@ -70,14 +71,16 @@ def graf_barras(base, arquivo):
     #Agora, fazemos o mesmo processo para os dados de cada ativo no dia atual
     valores_hoje = {}
     for ativo in base.keys():
-        dia_hoje = 1
         ticket = yf.Ticker(ativo)
-        ticket_hist = ticket.history(period=f"{dia_hoje}d", debug = False)
+        ticket_hist = ticket.history(period="1d", debug = False)
         ticket_hist.fillna(-1, inplace = True)
 
+        antes_ontem = 1
         while ticket_hist.size == 0 or ticket_hist.Close[0] == -1 :
-            dia_hoje += 1
-            ticket_hist = ticket.history(period=f"{dia_hoje}d", debug = False)
+            antes_ontem += 1
+            inicio_altern = datetime.now() - timedelta(days=antes_ontem)
+            final_altern = inicio_altern + timedelta(days=1)
+            ticket_hist = ticket.history(start=inicio_altern, end=final_altern, debug = False)
             ticket_hist.fillna(-1, inplace = True)
 
         valores_hoje[ativo] = ticket_hist.Close[0]
@@ -281,9 +284,8 @@ def graf_stock(base, arquivo):
 
 """==========================================================================================="""
 
-
-# Dicionário de teste:
+# # Teste:
 carteira = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
 
 graf_barras(carteira, "teste.xlsx")
-graf_stock(carteira, "teste.xlsx")
+# graf_stock(carteira, "teste.xlsx")
