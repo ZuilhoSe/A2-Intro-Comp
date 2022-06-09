@@ -3,12 +3,13 @@ import locale
 import calendar
 import yfinance as yf
 from openpyxl import load_workbook
-from openpyxl.chart import BarChart, StockChart, Reference
+from openpyxl.chart import BarChart, StockChart, LineChart, Reference
 from openpyxl.chart.marker import DataPoint
 from openpyxl.chart.shapes import GraphicalProperties
 from openpyxl.chart.axis import ChartLines
 from openpyxl.chart.updown_bars import UpDownBars
 from openpyxl.chart.data_source import NumData, NumVal
+from openpyxl.chart.trendline import Trendline
 from openpyxl.drawing.line import LineProperties
 from openpyxl.styles import NamedStyle,PatternFill, Font
 from carteira import aplicar_estilo_area
@@ -27,7 +28,7 @@ def graf_barras(base, arquivo):
 
     #O gráfico de barras mostra quanto uma ação subiu ou desceu de valor no último ano, e para isso devemos primeiro adquirir os dados pelo yfinance, e em seguida montar o gráfico
     
-    #Primeiro, o código para pegar a data de um ano atrás:
+    #Primeiro, o código para pegar a data de um ano atrás
     dias = 365
     data_inicio = datetime.now() - timedelta(days=dias)
     
@@ -53,10 +54,10 @@ def graf_barras(base, arquivo):
         # É muito comum que em determinado dia, a bolsa não funcione por vários motivos, e por isso o Yfinance 
         # não terá dados referentes àquele dia específico, e nos entregará um dataframe vazio, por isso 
         # devemos tratar este caso. Caso o dataframe retornado seja vazio, iremos pegar os dados de um dia 
-        # antes, repetidamente, até ser retornado um dataframe válido.
+        # antes, repetidamente, até ser retornado um dataframe válido
 
         # Também foi necessário tratar um caso em que o dataframe é retornado com alguns valores faltantes,
-        # com as células contendo NaN. Para isso foi usado o método fillna do dataframe, e um Or no While.
+        # com as células contendo NaN. Para isso foi usado o método fillna do dataframe, e um Or no While
         
         dias_antigos = dias
         while ticket_hist.size == 0 or ticket_hist.Close[0] == -1:
@@ -91,7 +92,7 @@ def graf_barras(base, arquivo):
         resultado = (valores_hoje[chave] / valores_antigos[chave]) - 1
         dados.append(resultado)
 
-    #E as categorias sendo as chaves:
+    #E as categorias sendo as chaves
     categorias = []
     for chave in valores_antigos.keys():
         categorias.append(chave)
@@ -152,26 +153,57 @@ def graf_barras(base, arquivo):
     estatisticas.add_chart(bar_grafic, "B3")
     planilha.save(arquivo)
 
-
-
 def graf_linha(base, arquivo):
-    
-    # Vamos começar importando a planilha para inserir os dados nela.
+    """Gera um gráfico de linhas em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
+
+    Args:
+        base (dict): Recebe um dicionário com chaves no formato de datas, e valores no formato de valor em dinheiro, correspondentes ao valor total da carteira em determinada data.
+        arquivo (str): Nome do arquivo excel onde será gerado o gráfico. Deve estar no formato ("nome.xlsx")
+    """
+
+    # Vamos começar importando a planilha para inserir os dados nela
     planilha = load_workbook(arquivo)
     estatisticas = planilha["Estatísticas"]
 
-    # Inserindo os dados na planilha:
+    # Inserindo os dados na planilha
     linha = 2
     coluna_data = 6
     coluna_valor = 7
-    estatisticas.cell(row=linha, column=coluna_data, value="Date")
+    estatisticas.cell(row=linha, column=coluna_data, value="Data")
     estatisticas.cell(row=linha, column=coluna_valor, value="Valores")
     for key in base.keys():
         linha += 1
         estatisticas.cell(row=linha, column=coluna_data, value=key)
         estatisticas.cell(row=linha, column=coluna_valor, value=base[key])
 
+    #Seleciona o tipo e os titulos
+    graf_linha = LineChart()
+    graf_linha.title = "Valor Total da Carteira ao Longo do Tempo"
+    graf_linha.y_axis.title = "Valor da Carteira (em R$)"
+    graf_linha.x_axis.title = "Data"
 
+    #Seleciona os dados do grafico na planilha
+    dados = Reference(estatisticas, min_col=7, min_row=2, max_col=7, max_row=linha)
+    tempo = Reference(estatisticas, min_col=6, min_row=3, max_col=6, max_row=linha)
+    graf_linha.add_data(dados, titles_from_data=True)
+    graf_linha.set_categories(tempo)
+
+    #Estilizando
+    s1 = graf_linha.series[0]
+    s1.graphicalProperties.line.solidFill = "0000FF"
+    s1.graphicalProperties.line.width = 25000
+    graf_linha.style = 13
+    graf_linha.legend = None
+    graf_linha.x_axis.number_format = "dd-mm-yy"
+    graf_linha.x_axis.majorTimeUnit = "years"
+    graf_linha.y_axis.majorGridlines.graphicalProperties = GraphicalProperties(ln=LineProperties(prstDash="dash"))
+
+    # Adiciona uma linha de tendência ao gráfico
+    s1.trendline = Trendline()
+
+    #Adiciona o gráfico à planilha
+    estatisticas.add_chart(graf_linha, "L3")
+    planilha.save(arquivo)
 
 def graf_stock(base, arquivo):
     """Gera um gráfico do tipo Stock em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
@@ -187,19 +219,19 @@ def graf_stock(base, arquivo):
     # Caso a caixa esteja clara, isso indica um aumento no preço, logo a extremidade inferior da caixa
     # indica o valor de abertura, e a extremidade superior indica o valor de fechamento. Caso a caixa
     # esteja escura, houve um decrescimento, logo a extremidade superior indica o valor de abertura,
-    # e a inferior indica o valor de fechamento.
+    # e a inferior indica o valor de fechamento
 
-    # Vamos começar importando a planilha para inserir os dados nela.
+    # Vamos começar importando a planilha para inserir os dados nela
     planilha = load_workbook(arquivo)
     estatisticas = planilha["Estatísticas"]
 
-    # Para teste vou importar a função do módulo cotacao. Depois isso poderá ser descartado.
+    # Para teste vou importar a função do módulo cotacao. Depois isso poderá ser descartado
     dict = cotacao_anual(base)
 
     # É necessário iterar sobre o dataframe dado, para inserir os dados de cada StockChart na planilha.
     # Para iterar sobre um dataframe sem utilizar muitos recursos de Pandas, foi utilizado um código mais
     # grosseiro de For dentro de For, com um contador para separar os gráficos, um para as colunas, e um
-    # para as linhas.
+    # para as linhas
     contador = 0
     for key in dict.keys():
         contador += 1 #Este contador cresce de acordo com a quantidade de ativos que são dados
@@ -243,7 +275,7 @@ def graf_stock(base, arquivo):
 
     # Aqui cria-se um gráfico para cada ativo. Para não sobrepor os gráficos, vamos diferenciá-los através 
     # de um contador. Usaremos do posicionamento dos dados ser em múltiplos de 9 para localizá-los na planilha,
-    #  e dessa forma não precisaremos nos referir a cada um em específico.
+    #  e dessa forma não precisaremos nos referir a cada um em específico
     grafico = 0
     for key in dict.keys():
         grafico += 1
@@ -283,7 +315,7 @@ def graf_stock(base, arquivo):
         cache = NumData(pt=pts)
         stock.series[-1].val.numRef.numCache = cache
 
-        # Vamos organizar os gráficos stock em duas colunas, com uma leve matemágica:
+        # Vamos organizar os gráficos stock em duas colunas, com uma leve matemágica
         if grafico % 2 != 0:
             pos_coluna = "B"
             pos_linha = int(2 + (16 * ((grafico + 1)/2)))
@@ -305,6 +337,8 @@ def graf_stock(base, arquivo):
 
 # # Teste:
 # carteira = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
+# dicionario = {"01/01/2000": 10, "02/01/2000": 30, "03/01/2000": 100, "04/01/2000": 70, "05/01/2000": 150}
 
 # graf_barras(carteira, "teste.xlsx")
+# graf_linha(dicionario, "teste.xlsx")
 # graf_stock(carteira, "teste.xlsx")
