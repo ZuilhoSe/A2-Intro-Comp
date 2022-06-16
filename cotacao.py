@@ -24,6 +24,19 @@ def buscar_fator(ticket, ticket_hist, periodo, intervalo="1d"):
     else:
         return ticket_hist
 
+def buscar_fator_atual(ticket):
+    ticket_currency = ticket.info["currency"]
+    if ticket_currency != "BRL":
+        ticket_currency = ticket_currency+"BRL=X"
+        #busca o ticket usando a string concatenada
+        fator = yf.Ticker(ticket_currency)
+        #encontra o valor da moeda em relaçao ao real 
+        fator_info = fator.info["regularMarketPrice"]
+        return fator_info
+    else:
+        return 1
+
+
 def conversao(ticket_hist, fator):
     """converte as colunas desejas do data frame para apresentar o valor em real
 
@@ -58,7 +71,7 @@ def cotacao_semanal(dic):
     periodo="5d"
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
-        ticket_hist = ticket.history(period="5d")
+        ticket_hist = ticket.history(period=periodo)
         #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
         fator = buscar_fator(ticket, ticket_hist, periodo)
         #chama a função conversao que usa o resultado de buscar_fator para converter as colunas necessarias para real quando o ativo esta cotado em outra moeda
@@ -103,10 +116,13 @@ def cotacao_atual(dic):
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_info=ticket.info["regularMarketPrice"]
+
         #encontra o valor da moeda em que o ativo está cotado em relação ao real
-        fator = buscar_fator(ticket)
+
+        fator = buscar_fator_atual(ticket)
         #converte o valor do ativo para real 
         ticket_info = ticket_info*fator
+
         dicionario_atual[ativo] = ticket_info
     return dicionario_atual
 
