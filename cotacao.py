@@ -1,3 +1,4 @@
+from pandas import DataFrame
 import yfinance as yf
 import time
 
@@ -32,16 +33,20 @@ def conversao(ticket_hist, fator):
 
     Returns:
         pandas.core.frame.DataFrame: retorna o dataframe com as colunas alteradas
-    """    
-    #se o fator de correção for diferente de um aplica esse fator nas colunas desejadas do dataframe se for igual a 1 apenas retorna o primeiro argumento
-    ticket_hist ["Open"] = fator["Open"] * ticket_hist ["Open"]
-    ticket_hist ["High"] = fator["High"] * ticket_hist ["High"]
-    ticket_hist ["Low"] = fator["Low"] * ticket_hist ["Low"]
-    ticket_hist ["Close"] = fator["Close"] * ticket_hist ["Close"]
+    """
+    igualdade=DataFrame.equals(fator,ticket_hist)
+    if igualdade == True :
+        return ticket_hist  
+    else:
+        #se o fator de correção for diferente de um aplica esse fator nas colunas desejadas do dataframe se for igual a 1 apenas retorna o primeiro argumento
+        ticket_hist ["Open"] = fator["Open"] * ticket_hist ["Open"]
+        ticket_hist ["High"] = fator["High"] * ticket_hist ["High"]
+        ticket_hist ["Low"] = fator["Low"] * ticket_hist ["Low"]
+        ticket_hist ["Close"] = fator["Close"] * ticket_hist ["Close"]
     return ticket_hist
 
 
-def cotacao_semana(dic):
+def cotacao_semanal(dic):
     #clock=time.time()
     """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação do ativo na última semana útil
     Args:
@@ -49,7 +54,7 @@ def cotacao_semana(dic):
     Returns:
         Dictionary: Retorna um dicionário onde cada chave é um ativo e cada valor é um dataframe das informações mais relevantes do ativo nos últimos 5 dias 
     """    
-    dicionario_semana = {}
+    dicionario_semanal = {}
     periodo="5d"
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
@@ -59,10 +64,10 @@ def cotacao_semana(dic):
         #chama a função conversao que usa o resultado de buscar_fator para converter as colunas necessarias para real quando o ativo esta cotado em outra moeda
         ticket_hist = conversao(ticket_hist, fator)
 
-        dicionario_semana[ativo] = ticket_hist
+        dicionario_semanal[ativo] = ticket_hist
     #clock2=time.time()
     #print(f"{clock2-clock} segundos de execução")
-    return dicionario_semana
+    return dicionario_semanal
 
 def cotacao_anual(dic):
     """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação do ativo no último ano
@@ -106,6 +111,7 @@ def cotacao_atual(dic):
     return dicionario_atual
 
 # use o dicionario a baixo como teste 
-#dic = {"PETR4.SA":"10", "AMZN":"10"}
+dic = {"PETR4.SA":"10", "AMZN":"100"}
+print(cotacao_semanal(dic))
 
 
