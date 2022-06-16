@@ -225,17 +225,14 @@ def graf_stock(base, arquivo):
     planilha = load_workbook(arquivo)
     estatisticas = planilha["Estatísticas"]
 
-    # Para teste vou importar a função do módulo cotacao. Depois isso poderá ser descartado
-    dict = cotacao_anual(base)
-
     # É necessário iterar sobre o dataframe dado, para inserir os dados de cada StockChart na planilha.
     # Para iterar sobre um dataframe sem utilizar muitos recursos de Pandas, foi utilizado um código mais
     # grosseiro de For dentro de For, com um contador para separar os gráficos, um para as colunas, e um
     # para as linhas
     contador = 0
-    for key in dict.keys():
+    for key in base.keys():
         contador += 1 #Este contador cresce de acordo com a quantidade de ativos que são dados
-        dataframe = dict[key]
+        dataframe = base[key]
         
         linha = 2
         coluna = 9 * contador #Perceba que os dados são inseridos em colunas múltiplas de 9
@@ -277,12 +274,13 @@ def graf_stock(base, arquivo):
     # de um contador. Usaremos do posicionamento dos dados ser em múltiplos de 9 para localizá-los na planilha,
     #  e dessa forma não precisaremos nos referir a cada um em específico
     grafico = 0
-    for key in dict.keys():
+    for key in base.keys():
         grafico += 1
         stock = StockChart()   
-
+        dataframe = base[key]
+        
+        #Primeiro selecionamos os dias e os dados na planilha
         coluna = 9 * grafico
-        dataframe = dict[key]
         num_linhas = len(dataframe.index)
         dias = Reference(estatisticas, min_col=coluna, max_col=coluna, min_row=3, max_row=num_linhas)
         
@@ -290,14 +288,14 @@ def graf_stock(base, arquivo):
         coluna_fin = coluna + 4
         dados = Reference(estatisticas, min_col=coluna_ini, max_col=coluna_fin, min_row=2, max_row=num_linhas) 
 
-        
         stock.add_data(dados, titles_from_data=True)
         stock.set_categories(dias)
 
+        #Aqui configuramos as linhas High-Low e as caixas de Open-Close
         stock.hiLowLines = ChartLines()
         stock.upDownBars = UpDownBars(gapWidth=10)
         
-        # Adicionando o título e estilizando
+        # Adicionando títulos e estilizando
         for serie in stock.series:
             serie.graphicalProperties.line.noFill = True
 
@@ -327,9 +325,8 @@ def graf_stock(base, arquivo):
     # Estilo para esconder os dados das tabelas inseridas na planilha
     ultima_coluna = 10 + (9 * grafico)
     estilo_esconder = NamedStyle(name = "estilo_esconder")
-    estilo_esconder.fill = PatternFill(fill_type = "solid", fgColor="FFFFFF")
     estilo_esconder.font = Font(color="FFFFFF")
-    aplicar_estilo_area(estatisticas, 2, 366, 3, ultima_coluna, "estilo_esconder")
+    aplicar_estilo_area(estatisticas, 2, 366, 3, ultima_coluna, estilo_esconder)
 
     planilha.save(arquivo)
 
