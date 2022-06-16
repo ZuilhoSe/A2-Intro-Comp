@@ -79,12 +79,4 @@ def cotacao_anual(dic):
     return dicionario_anual
 
 # use o dicionario a baixo como teste
-<<<<<<< HEAD
-
-print(cotacao_semana(dic))
-
-
-# criar um dicionario com os fatores de conversao mais comum e consultar o dicionario caso uma moeda não esteja no dicionario adicione o valor ao dicionario
-=======
 # dic = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
->>>>>>> 28c81938568927c68f3e8c4d5037182d65fd821e
