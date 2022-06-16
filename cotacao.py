@@ -111,7 +111,6 @@ def cotacao_anual(dic):
         dicionario_anual[ativo] = ticket_hist
     return dicionario_anual
 
-<<<<<<< HEAD
 
 def cotacao_atual(dic):
     """A função recebe um dicionario que contém o nome das açoes como chaves e retorna a cotação atual do ativo
@@ -135,7 +134,4 @@ def cotacao_atual(dic):
 
 # use o dicionario a baixo como teste 
 #dic = {"PETR4.SA":"10", "AMZN":"100", "AAPL":"102", "KO":"123"}
-=======
-# use o dicionario a baixo como teste
-# dic = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
->>>>>>> main
+
