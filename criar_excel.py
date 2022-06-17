@@ -51,6 +51,11 @@ def link_folhas(nome_arquivo):
     planilha.save(nome_arquivo)
 
 def bloquear_planilha(nome_arquivo):
+    """Bloqueia as folhas da planilha
+
+    Args:
+        nome_arquivo (string): deve estar no formato "nome_arquivo.xlsx"
+    """    
     #Abre o arquivo
     planilha = load_workbook(nome_arquivo)
     #Seleciona as folhas
