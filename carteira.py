@@ -156,12 +156,20 @@ def ajustar_largura_colunas(nome_folha):
     nome_folha.column_dimensions['K'].width = 2
     nome_folha.column_dimensions['L'].width = 20
     nome_folha.column_dimensions['M'].width = 20
-    nome_folha.column_dimensions['N'].width = 7.2
+    nome_folha.column_dimensions['N'].width = 7
     nome_folha.column_dimensions['O'].width = 7.2
     nome_folha.column_dimensions['P'].width = 2
+    #Ajeitar altura para QRCODE
+    nome_folha.row_dimensions[7].height = 14.88
 
 #Funções de adição dos dados
 def criar_qrcode(valores_atuais,nome_qrcode):
+    """Cria o QRCODE com o valor total da carteira
+
+    Args:
+        valores_atuais (dic): dicionario com os valores totais de cada ativo
+        nome_qrcode (_type_): _description_
+    """    
     valor_total = 0
     for valor in valores_atuais.values():
         valor = float(valor)
@@ -169,8 +177,21 @@ def criar_qrcode(valores_atuais,nome_qrcode):
     valor_total = round(valor_total,2)
     valor_total = str(valor_total).replace('.',',')
     mensagem = str(f"O valor total da sau carteira é R$ {valor_total}")
-    img = qrcode.make(mensagem)
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=3,
+        border=2)
+    qr.add_data(mensagem)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
     img.save(nome_qrcode)
+
+def adicionar_qrcode(valores_atuais,nome_arquivo,folha_carteira):
+    nome_qrcode = nome_arquivo + ".png"
+    criar_qrcode(valores_atuais,nome_qrcode)
+    img = Image(nome_qrcode)
+    folha_carteira.add_image(img, 'N3')
 
 def criar_cabecalho(nome_folha):
     """Cria o cabeçalho da planilha
@@ -303,11 +324,13 @@ def carteira(nome_arquivo, dicionario_ativos):
     criar_cabecalho(folha_carteira)
     criar_corpo_carteira(folha_carteira, dicionario_ativos)
     ajustar_largura_colunas(folha_carteira)
+    adicionar_qrcode(dicionario_ativos,nome_arquivo,folha_carteira)
     #Salva o arquivo
     planilha.save(nome_arquivo)
 
-dic = {'PETR4.SA': '240', 'B3SA3.SA': '120', 'HAPV3.SA': '300', 'OIBR3.SA':'78','BRL=X':'3187.76','JPYBRL=X':'120987.09','EURBRL=X':'2490.87'}
-#from criar_excel import criar_planilha
-#criar_planilha("Teste1.xlsx")
-#carteira("Teste1.xlsx",dic)
-print(criar_qrcode(dic,"qrcode_teste1.png"))
+#dic = {'PETR4.SA': '240', 'B3SA3.SA': '120', 'HAPV3.SA': '300', 'OIBR3.SA':'78','BRL=X':'3187.76','JPYBRL=X':'120987.09','EURBRL=X':'2490.87'}
+dic = {'PETR4.SA': '240'}
+
+from criar_excel import criar_planilha
+criar_planilha("Teste1.xlsx")
+carteira("Teste1.xlsx",dic)
