@@ -1,10 +1,14 @@
 from tkinter import *
 import validators
+import time
 import scrapper
+import cotacao
 
 
 class Application:
     def __init__(self, master=None):
+        self.valida = False
+
         self.fontePadrao = ("Arial", "10")
         self.primeiroContainer = Frame(master)
         self.primeiroContainer["pady"] = 10
@@ -44,13 +48,16 @@ class Application:
         self.mensagem = Label(self.quartoContainer, text="", font=self.fontePadrao)
         self.mensagem.pack()
 
+
     #Método verificar url
     def verificaURL(self):
         self.url_coletada = self.url.get()
         if validators.url(self.url_coletada) == True:
-            self.mensagem["text"] = "URL válida, dando prosseguimento..."
-            self.realizar_scrapper()
-            self.mensagem["text"] = str(self.carteira)
+            self.mensagem["text"] = "URL válida, dando prosseguimento... \n Agora vai demorar um pouco..."
+            self.realizar_scrapper
+            print(1)
+            self.buscar_cotacoes
+            print(2)
         else:
             self.mensagem["text"] = "URL INVÁLIDA! Certifique-se de que a URL está correta!"
 
@@ -61,13 +68,24 @@ class Application:
         moedas = scrapper.buscar_moedas(soup)
         lista = scrapper.juntar_moedas_acoes(acoes, moedas)
         self.carteira = scrapper.saida(lista)
+        self.mensagem["text"] = "URL válida, dando prosseguimento... \n Agora vai demorar um pouco..."
 
     #Método que executa o módulo de buasca de cotações;
     def buscar_cotacoes(self):
+        self.cotacao_anual = cotacao.cotacao_anual(self.carteira)
+        self.cotacao_semanal = cotacao.cotacao_semanal(self.carteira)
+        self.cotacao_atual = cotacao.cotacao_atual(self.carteira)
+        self.mensagem["text"] = "Cotações Encontradas..."
+
+    #Método que cria as planilhas excel;
+    def criando_excel(self):
+        pass
+
+    #método que cria os gráficos;
+    def criando_graficos(self):
         pass
 
 #Execução do Aplciativo
 root = Tk()
 Application(root)
 root.mainloop()
-
