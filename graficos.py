@@ -54,17 +54,27 @@ def graf_barras(base, arquivo):
 
         # Também foi necessário tratar um caso em que o dataframe é retornado com alguns valores faltantes,
         # com as células contendo NaN. Para isso foi usado o método fillna do dataframe, e um Or no While
-        
+
+        # Caso após 15 dias não seja encontrado nenhum valor, o código irá desistir e partir para o próximo
         dias_antigos = dias
+        falha = False
         while ticket_hist.size == 0 or ticket_hist.Close[0] == -1:
+
+            if dias_antigos == 380:
+                print(f"Não foi possível encontrar valores para {ativo}")
+                falha = True
+                break
+
             dias_antigos += 1
             inicio_altern = datetime.now() - timedelta(days=dias_antigos)
             final_altern = inicio_altern + timedelta(days=1)
             ticket_hist = ticket.history(start=inicio_altern, end=final_altern, debug = False)
+            
             ticket_hist.fillna(-1, inplace = True)
 
-        valores_antigos[ativo] = ticket_hist.Close[0]
-    
+        if falha == False:
+            valores_antigos[ativo] = ticket_hist.Close[0]
+
     #Agora, fazemos o mesmo processo para os dados de cada ativo no dia atual
     valores_hoje = {}
     for ativo in base.keys():
@@ -73,14 +83,22 @@ def graf_barras(base, arquivo):
         ticket_hist.fillna(-1, inplace = True)
 
         antes_ontem = 1
+        falha = False
         while ticket_hist.size == 0 or ticket_hist.Close[0] == -1 :
+            
+            if antes_ontem == 15: #Este if impede que o while fique em loop para sempre
+                print(f"Não foi possível encontrar valores para {ativo}")
+                falha = True
+                break
+            
             antes_ontem += 1
             inicio_altern = datetime.now() - timedelta(days=antes_ontem)
             final_altern = inicio_altern + timedelta(days=1)
             ticket_hist = ticket.history(start=inicio_altern, end=final_altern, debug = False)
             ticket_hist.fillna(-1, inplace = True)
 
-        valores_hoje[ativo] = ticket_hist.Close[0]
+        if falha == False:
+            valores_hoje[ativo] = ticket_hist.Close[0]
     
     #Agora, vamos fazer a matemágica para chegar nos dados necessários
     dados = []
@@ -168,20 +186,26 @@ def graf_linha(quantias, base, arquivo):
     for ativo in base.keys():
         dataframe = base[ativo]
         valor_por_ativo[ativo] = {}
+
         for data in dataframe.index:
             strf_data = data.strftime("%Y-%m-%d")
             valor = (dataframe.at[data, "Close"]) * float(quantias[ativo])
             valor_por_ativo[ativo][strf_data] = valor
-        
+        # Caso algum ativo possua menos de 20 dados no último ano, vamos ignorá-lo para não prejudicar
+        # o resultado do gráfico, afinal ele afetará pouco o valor total da carteira
+        if len(valor_por_ativo[ativo]) < 20:
+            valor_por_ativo.pop(ativo)
+
     # Agora precisamos saber quais datas esses dicionários possuem em comum
-    datas_comum = set(valor_por_ativo[ativo].keys())
+    chave0 = list(valor_por_ativo.keys())[0]
+    datas_comum = set(valor_por_ativo[chave0].keys())
     for ativo in valor_por_ativo.keys():
         datas_comum = datas_comum.intersection(set(valor_por_ativo[ativo].keys()))
-    
+    print(datas_comum)
     # Com as datas comuns em mãos, vamos unir o valor de todos os ativos em um só,
     # tendo assim o valor total da carteira por data.
     dados_finais = {}
-    for data in valor_por_ativo[ativo].keys():
+    for data in valor_por_ativo[chave0].keys():
         valor_total = 0
         if data in datas_comum:
             for ativo in valor_por_ativo.keys():
@@ -349,12 +373,23 @@ def graf_stock(base, arquivo):
 
 """==========================================================================================="""
 
-# # Esta parte do código é apenas para teste, e demora consideravelmente para rodar!
+# Esta parte do código é apenas para teste, e demora consideravelmente para rodar!
 
-# from cotacao import cotacao_anual
-# carteira = {"PETR4.SA": 10, "AMZN": 10, "AAPL": 100, "KO": 100}
-# base = cotacao_anual(carteira)
+from cotacao import cotacao_anual
 
-# graf_barras(carteira, "teste.xlsx")
-# graf_linha(carteira, base, "teste.xlsx")
-# graf_stock(base, "teste.xlsx")
+carteira = {
+    "AVST.L": "213.1243", 
+    "ANTO.L	": "32",
+    "PETZ3.SA": "501.49", 
+    "TWDBRL=X": "1203.000000",
+    "9988.HK": "123.1", 
+    "0700.HK": "34", 
+    "ARSBRL=X": "4300.21345",
+    "INRBRL=X": "125214.3214",
+    "CHFBRL=X": "12465"
+    }
+base = cotacao_anual(carteira)
+graf_barras(carteira, "teste.xlsx")
+graf_linha(carteira, base, "teste.xlsx")
+graf_stock(base, "teste.xlsx")
+ 
