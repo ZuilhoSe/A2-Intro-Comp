@@ -1,6 +1,6 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle,PatternFill, Border, Side, Alignment, Protection, Font
-from cotacao import cotacao_semana
+from cotacao import cotacao_semanal, cotacao_atual
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 #Funções de estilo da carteira
@@ -227,12 +227,11 @@ def criar_blocos(linha_inicial, coluna_inicial, titulo, valor, nome_folha):
     nome_folha.cell(row = linha_inicial,column = coluna_inicial+1, value = valor)
     nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial+1, end_row = linha_inicial+1, end_column = coluna_inicial +  2)
 
-def criar_resumo(nome_folha, valor_total, valor_ultima_cotacao, quantidade, linha_inicial, coluna_inicial):
+def criar_resumo(nome_folha, valor_ultima_cotacao, quantidade, linha_inicial, coluna_inicial):
     """Cria os blocos de resumo do ativo
 
     Args:
         nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
-        valor_total (float): deve estar no formato 9999.99
         valor_ultima_cotacao (float): deve estar no formato 9999.99
         quantidade (float): deve estar no formato 9999.99
         linha_inicial (int): linha em que começa o bloco de resumos
@@ -240,6 +239,7 @@ def criar_resumo(nome_folha, valor_total, valor_ultima_cotacao, quantidade, linh
     """    
     #Cria os blocos do Total Anual
     linha_total = linha_inicial +1
+    valor_total = valor_ultima_cotacao * quantidade
     criar_blocos(linha_total, coluna_inicial, "Total Atual", valor_total, nome_folha)
     formatar_valor(nome_folha, "Real", linha_total,linha_total, coluna_inicial + 1, coluna_inicial + 1)
     #Cria os blocos de Qtd. Ativos
@@ -258,16 +258,18 @@ def criar_corpo_carteira(nome_folha, dicionario_ativos):
         dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
     """    
     #Puxa o dicionario de ativos e seus dataframes
-    cotacao = cotacao_semana(dicionario_ativos)
+    cotacao = cotacao_semanal(dicionario_ativos)
+    #Puxa os valores das ultimas cotações
+    valores_atuais = cotacao_atual(dicionario_ativos)
     #Define a linha que termina o cabeçalho
     linha_inicial = 9
     #Define os estilos para estilizar as tabelas
     estilos = estilos_tabela_ativo()
-    #Para cada ativo cria os blocos
+    #Para cada ativo cria o bloco do ativo
     for ativo, data_frame in cotacao.items():
         estilizar_tabela_ativo(nome_folha, estilos, linha_inicial, 1)
         criar_tabela_ativo(nome_folha, ativo, data_frame, linha_inicial, 3)
-        criar_resumo(nome_folha, 1, 1, 1, linha_inicial, 12)
+        criar_resumo(nome_folha, valores_atuais[ativo], dicionario_ativos[ativo], linha_inicial, 12)
         #Define o começo do próximo bloco
         linha_inicial += 12
 
@@ -288,3 +290,8 @@ def carteira(nome_arquivo, dicionario_ativos):
     ajustar_largura_colunas(folha_carteira)
     #Salva o arquivo
     planilha.save(nome_arquivo)
+
+dic = {'AVST.L': 10}
+from criar_excel import criar_planilha
+criar_planilha("Teste1.xlsx")
+carteira("Teste1.xlsx",dic)
