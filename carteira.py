@@ -266,7 +266,7 @@ def criar_blocos(linha_inicial, coluna_inicial, titulo, valor, nome_folha):
         titulo (string): Impresso no bloco da esquerda
         valor (Any): Impresso no bloco da direita
         nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
-    """    
+    """
     nome_folha.cell(row = linha_inicial,column = coluna_inicial, value = titulo)
     nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial, end_row = linha_inicial+1, end_column = coluna_inicial)
     nome_folha.cell(row = linha_inicial,column = coluna_inicial+1, value = valor)
@@ -281,7 +281,7 @@ def criar_resumo(nome_folha, valor_ultima_cotacao, quantidade, linha_inicial, co
         quantidade (float): deve estar no formato 9999.99
         linha_inicial (int): linha em que começa o bloco de resumos
         coluna_inicial (int): coluna em que começa o bloco de resumos
-    """    
+    """
     #Cria os blocos do Total Anual
     linha_total = linha_inicial +1
     valor_total = valor_ultima_cotacao * quantidade
@@ -304,6 +304,8 @@ def criar_corpo_carteira(nome_folha, dicionario_ativos,cotacao,valores_atuais):
         cotacao (dictionary): deve estar no formato {ativo1:data.frame1,ativo2:data.frame2,...}
         valores_atuais (dictionary): deve estar no formato {ativo1:valor_atual1,ativo2:valor_atual2,...}
     """
+    #Puxa o dicionario de ativos e seus dataframes
+    cotacao = cotacao_semanal(dicionario_ativos)
     #Define a linha que termina o cabeçalho
     linha_inicial = 9
     #Define os estilos para estilizar as tabelas
@@ -325,7 +327,7 @@ def carteira(nome_arquivo, dicionario_ativos):
     Args:
         nome_arquivo (string): deve estar no formato("nome_arquivo.xlsx")
         dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
-    """    
+    """
     #Abre a planilha
     planilha = load_workbook(nome_arquivo)
     #Seleciona a folha da carteira
