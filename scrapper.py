@@ -24,12 +24,20 @@ def buscar_moedas(soup):
 
     Returns:
         list: Lista com as moedas e suas quantias;
-    """    
+    """
+    moedas = []    
     resultados_moedas = soup.find(class_="moeda")
     
+    #Caso onde não existe a classe moeda no HTML;
+    if resultados_moedas == None:
+        return moedas
+
     elementos_moedas = resultados_moedas.find_all("td")
 
-    moedas = []
+    #Caso onde não existem ativos na classe;
+    if elementos_moedas == None:
+        return moedas
+
     for elemento_moedas in elementos_moedas:
         moedas.append(elemento_moedas.text)
 
@@ -45,11 +53,19 @@ def buscar_acoes(soup):
     Returns:
         list: Lista com as ações e suas quantias;
     """    
+    acoes = []
     resultados_acoes = soup.find(class_="acao")
+
+    #Caso onde não existe a classe moeda no HTML;
+    if resultados_acoes == None:
+        return acoes
     
     elementos_acoes = resultados_acoes.find_all("td")
 
-    acoes = []
+    #Caso onde não existem ativos na classe;
+    if elementos_acoes == None:
+        return acoes
+
     for elemento_acoes in elementos_acoes:
         acoes.append(elemento_acoes.text)
 
@@ -79,6 +95,10 @@ def saida(lista):
     Returns:
         dict: Dicionário onde a chave é o nome do ativo e o valor é a sua quantidade;
     """    
+    #Caso onde não existem moedas nem ações;
+    if len(lista) == 0:
+        return carteira
+
     carteira[lista[0]] = lista[1]
 
     if len(lista) == 2:
@@ -88,8 +108,9 @@ def saida(lista):
 
 carteira = {}
 
+
 """
-Aqui temos um teste básico para vermos se as funções estão funcionando:
+#Aqui temos um teste básico para vermos se as funções estão funcionando:  
 soup = ler_carteira("https://zuilhose.github.io/A2-Intro-Comp/")
 acoes = buscar_acoes(soup)
 moedas = buscar_moedas(soup)
