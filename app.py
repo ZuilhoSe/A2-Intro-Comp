@@ -3,6 +3,7 @@ import validators
 import scrapper
 import cotacao
 import criar_excel
+import carteira
 
 
 class Application:
@@ -25,6 +26,10 @@ class Application:
         self.quartoContainer = Frame(master)
         self.quartoContainer["pady"] = 20
         self.quartoContainer.pack()
+
+        self.mensagem = Label(self.quartoContainer, text="", font=self.fontePadrao)
+        self.mensagem["text"] = "Após clicar em iniciar, o programa demora a executar. \n É necessário esperar um pouco."
+        self.mensagem.pack()
 
         self.titulo = Label(self.primeiroContainer, text="Robô de Avaliação de Portfólio de Investimentos")
         self.titulo["font"] = ("Arial", "10", "bold")
@@ -53,18 +58,14 @@ class Application:
         self.iniciar["command"] = self.verificaURL
         self.iniciar.pack()
 
-        self.mensagem = Label(self.quartoContainer, text="", font=self.fontePadrao)
-        self.mensagem.pack()
-
-
     #Método verificar url
     def verificaURL(self):
         self.url_coletada = self.url.get()
         if validators.url(self.url_coletada) == True:
-            self.mensagem["text"] = "URL válida, dando prosseguimento... \n Agora vai demorar um pouco..."
             self.realizar_scrapper()
             self.buscar_cotacoes()
             self.criando_excel()
+            self.criando_carteira()
         else:
             self.mensagem["text"] = "URL INVÁLIDA! Certifique-se de que a URL está correta!"
 
@@ -75,27 +76,28 @@ class Application:
         moedas = scrapper.buscar_moedas(soup)
         lista = scrapper.juntar_moedas_acoes(acoes, moedas)
         self.carteira = scrapper.saida(lista)
-        self.mensagem["text"] = "URL válida, dando prosseguimento... \n Agora vai demorar um pouco..."
 
     #Método que executa o módulo de buasca de cotações;
     def buscar_cotacoes(self):
-        self.cotacao_anual = cotacao.cotacao_anual(self.carteira)
-        self.cotacao_semanal = cotacao.cotacao_semanal(self.carteira)
-        self.cotacao_atual = cotacao.cotacao_atual(self.carteira)
-        self.mensagem["text"] = "Cotações Encontradas..."
+        self.cotacao_anual = cotacao.cotacao_anual({"PETR4.SA":"10", "AMZN":"100"})
+        self.cotacao_semanal = cotacao.cotacao_semanal({"PETR4.SA":"10", "AMZN":"100"})
+        self.cotacao_atual = cotacao.cotacao_atual({"PETR4.SA":"10", "AMZN":"100"})
 
     #Método que cria as planilhas excel;
     def criando_excel(self):
         self.xl_nome = self.xl.get()
-        if ".xlxs" in self.xl_nome:
-            criar_excel.criar_arquivo(self.xl_nome)
+        if ".xlsx" in self.xl_nome:
+            criar_excel.criar_planilha(self.xl_nome)
         else:
-            criar_excel.criar_arquivo(self.xl_nome + ".xlxs")
-        self.mensagem["text"] = "Arquivo Criado"
+            criar_excel.criar_planilha(self.xl_nome + ".xlsx")
 
     #método que cria os gráficos;
-    def criando_graficos(self):
-        pass
+    def criando_carteira(self):
+        if ".xlsx" in self.xl_nome:
+            nome_xl = self.xl_nome
+        else:
+            nome_xl = self.xl_nome + ".xlsx"
+        carteira.carteira(nome_xl, {"PETR4.SA":"10", "AMZN":"100"})
 
 #Execução do Aplciativo
 root = Tk()
