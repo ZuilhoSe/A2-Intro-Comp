@@ -21,4 +21,6 @@ Trabalho de A2 do curso de Introdução a Computação: scrapping de uma página
 * A execuçãdo do código é bem demorada, devido a forma como o yfinance trabalha, por isso, após fazer a requisição é necessário esperar algum tempo para ter o resultado.
 * O arquivo de saída '.xlsx' possuí duas abas, uma com os valores da última semana da carteira e outra com os gráficos relativos aos ativos na carteira.
 
-*obs: O arquivo de saída é gerado na pasta onde se encontra o arquivo 'app.py'*
+*obs_1: O arquivo de saída é gerado na pasta onde se encontra o arquivo 'app.py'*
+
+*obs_2: Após iniciar o programa, a interface gráfica do tkinter informa que não está respondendo, porém, basta esperar o script acabar de rodar. Favor não fechar a janela*
