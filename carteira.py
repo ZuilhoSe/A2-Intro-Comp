@@ -2,6 +2,8 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle,PatternFill, Border, Side, Alignment, Protection, Font
 from cotacao import cotacao_semanal, cotacao_atual
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.drawing.image import Image
+import qrcode
 
 #Funções de estilo da carteira
 def aplicar_estilo_area(nome_folha, linha_inicial, linha_final, coluna_inicial, coluna_final, estilo):
@@ -159,6 +161,17 @@ def ajustar_largura_colunas(nome_folha):
     nome_folha.column_dimensions['P'].width = 2
 
 #Funções de adição dos dados
+def criar_qrcode(valores_atuais,nome_qrcode):
+    valor_total = 0
+    for valor in valores_atuais.values():
+        valor = float(valor)
+        valor_total += valor
+    valor_total = round(valor_total,2)
+    valor_total = str(valor_total).replace('.',',')
+    mensagem = str(f"O valor total da sau carteira é R$ {valor_total}")
+    img = qrcode.make(mensagem)
+    img.save(nome_qrcode)
+
 def criar_cabecalho(nome_folha):
     """Cria o cabeçalho da planilha
 
@@ -294,6 +307,7 @@ def carteira(nome_arquivo, dicionario_ativos):
     planilha.save(nome_arquivo)
 
 dic = {'PETR4.SA': '240', 'B3SA3.SA': '120', 'HAPV3.SA': '300', 'OIBR3.SA':'78','BRL=X':'3187.76','JPYBRL=X':'120987.09','EURBRL=X':'2490.87'}
-from criar_excel import criar_planilha
-criar_planilha("Teste1.xlsx")
-carteira("Teste1.xlsx",dic)
+#from criar_excel import criar_planilha
+#criar_planilha("Teste1.xlsx")
+#carteira("Teste1.xlsx",dic)
+print(criar_qrcode(dic,"qrcode_teste1.png"))
