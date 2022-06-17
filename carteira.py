@@ -1,6 +1,6 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle,PatternFill, Border, Side, Alignment, Protection, Font
-from cotacao import cotacao_semana
+from cotacao import cotacao_semanal
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 #Funções de estilo da carteira
@@ -258,7 +258,7 @@ def criar_corpo_carteira(nome_folha, dicionario_ativos):
         dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
     """    
     #Puxa o dicionario de ativos e seus dataframes
-    cotacao = cotacao_semana(dicionario_ativos)
+    cotacao = cotacao_semanal(dicionario_ativos)
     #Define a linha que termina o cabeçalho
     linha_inicial = 9
     #Define os estilos para estilizar as tabelas
