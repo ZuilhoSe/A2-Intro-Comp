@@ -1,3 +1,4 @@
+from ast import Try
 from types import NoneType
 from pandas import DataFrame
 import yfinance as yf
@@ -88,11 +89,14 @@ def cotacao_semanal(dic):
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_hist = ticket.history(period=periodo)
-        #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
-        fator = buscar_fator(ticket, ticket_hist, periodo)
-        #chama a função conversao que usa o resultado de buscar_fator para converter as colunas necessarias para real quando o ativo esta cotado em outra moeda
-        ticket_hist = conversao(ticket_hist, fator)
-
+        #caso um ativo não esteja listado no Yahoo finance ticket_hist será um Data frame vazio, nesses casos o for deve ignorar essa entrada e seguir para os proximos ativos 
+        if not ticket_hist.empty:
+            #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
+            fator = buscar_fator(ticket, ticket_hist, periodo)
+            #chama a função conversao que usa o resultado de buscar_fator para converter as colunas necessarias para real quando o ativo esta cotado em outra moeda
+            ticket_hist = conversao(ticket_hist, fator)
+        else:
+            continue
         dicionario_semanal[ativo] = ticket_hist
     return dicionario_semanal
 
@@ -109,10 +113,14 @@ def cotacao_anual(dic):
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
         ticket_hist = ticket.history(period=periodo, interval=intervalo)
-        #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
-        fator = buscar_fator(ticket, ticket_hist, periodo, intervalo)
-        #chama a funçao conversao para corrigir o valor das colunas necessarias para real quando o ativo estiver cotado em outra moeda
-        ticket_hist = conversao(ticket_hist, fator)
+        #caso um ativo não esteja listado no Yahoo finance ticket_hist será um Data frame vazio, nesses casos o for deve ignorar essa entrada e seguir para os proximos ativos
+        if not ticket_hist.empty:
+            #chama a funçao buscar_fator para encontrar o valor em relação ao real da moeda em que o ativo está cotado
+            fator = buscar_fator(ticket, ticket_hist, periodo, intervalo)
+            #chama a função conversao que usa o resultado de buscar_fator para converter as colunas necessarias para real quando o ativo esta cotado em outra moeda
+            ticket_hist = conversao(ticket_hist, fator)
+        else:
+            continue
         dicionario_anual[ativo] = ticket_hist
     return dicionario_anual
 
@@ -129,13 +137,17 @@ def cotacao_atual(dic):
     dicionario_atual={}
     for ativo in dic.keys():
         ticket=yf.Ticker(ativo)
-        ticket_info=ticket.info["regularMarketPrice"]
-        #encontra o valor da moeda em que o ativo está cotado em relação ao real
-        fator = buscar_fator_atual(ticket)
-        #converte o valor do ativo para real 
-        ticket_info = ticket_info*fator
-        dicionario_atual[ativo] = ticket_info
+        #Caso algum ativo não esteja listado no yahoo finance será retornado KeyError nesses casos queremos que nosso for ignore esse ativo e continue para os demais
+        try:
+            ticket_info=ticket.info["regularMarketPrice"]
+            #encontra o valor da moeda em que o ativo está cotado em relação ao real
+            fator = buscar_fator_atual(ticket)
+            #converte o valor do ativo para real 
+            ticket_info = ticket_info*fator
+            dicionario_atual[ativo] = ticket_info
+        except KeyError:
+            continue
     return dicionario_atual
 
 # use o dicionario a baixo como teste 
-#dic = {'TWDBRL=X': '1203.000000'}
+#dic = {'AVST.L': 'GBp', 'ANTO.L': 'GBp', 'PEsTZ3.SA': 'GBp', '9988d.HK': 'GBp', '07030.HK': 'GBp', 'ARS4BRL=X': 'GBp', 'INR1BRL=X': 'GBp', 'CHFB3RL=X': 'GBp', 'TWDBRL=X': None}
