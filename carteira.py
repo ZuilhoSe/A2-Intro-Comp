@@ -4,7 +4,7 @@ from cotacao import cotacao_semanal, cotacao_atual
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.drawing.image import Image
 import qrcode
-
+import os
 #Funções de estilo da carteira
 def aplicar_estilo_area(nome_folha, linha_inicial, linha_final, coluna_inicial, coluna_final, estilo):
     """Aplica um estilo de formatação de célula a uma range de células
@@ -179,7 +179,7 @@ def criar_qrcode(dicionario_ativos,valores_atuais,nome_qrcode):
         valor_total += valor
     valor_total = round(valor_total,2)
     valor_total = str(valor_total).replace('.',',')
-    mensagem = str(f"O valor total da sau carteira é R$ {valor_total}")
+    mensagem = str(f"O valor total da sua carteira é R$ {valor_total}")
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -203,6 +203,7 @@ def adicionar_qrcode(dicionario_ativos,valores_atuais,nome_arquivo,nome_folha):
     criar_qrcode(dicionario_ativos,valores_atuais,nome_qrcode)
     img = Image(nome_qrcode)
     nome_folha.add_image(img, 'N3')
+
 
 def criar_cabecalho(nome_folha):
     """Cria o cabeçalho da planilha
@@ -342,7 +343,9 @@ def carteira(nome_arquivo, dicionario_ativos):
     adicionar_qrcode(dicionario_ativos,valores_atuais,nome_arquivo,folha_carteira)
     #Salva o arquivo
     planilha.save(nome_arquivo)
-
+    nome_qrcode = nome_arquivo + ".png"
+    if os.path.isfile(nome_qrcode):
+        os.remove(nome_qrcode)
 """
 Um teste para ver se o modulo está funcionando:
 
