@@ -50,6 +50,23 @@ def link_folhas(nome_arquivo):
     #Salva a planilha
     planilha.save(nome_arquivo)
 
+def bloquear_planilha(nome_arquivo):
+    #Abre o arquivo
+    planilha = load_workbook(nome_arquivo)
+    #Seleciona as folhas
+    carteira = planilha["Carteira"]
+    estatisticas = planilha["Estatísticas"]
+    #Remover gridlines
+    carteira.sheet_view.showGridLines = False
+    estatisticas.sheet_view.showGridLines = False
+    #Remover headers
+    carteira.sheet_view.showRowColHeaders = False
+    estatisticas.sheet_view.showRowColHeaders = False
+    carteira.protection.password = "protegida"
+    estatisticas.protection.password = "protegida"
+    #Salva a planilha
+    planilha.save(nome_arquivo)
+
 def criar_planilha(nome_arquivo):
     """Cria o a planilha base
 
@@ -59,5 +76,3 @@ def criar_planilha(nome_arquivo):
     criar_arquivo(nome_arquivo)
     criar_folhas(nome_arquivo)
     link_folhas(nome_arquivo)
-
-criar_planilha("teste.xlsx")
