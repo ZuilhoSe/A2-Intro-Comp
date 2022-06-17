@@ -201,7 +201,7 @@ def graf_linha(quantias, base, arquivo):
     datas_comum = set(valor_por_ativo[chave0].keys())
     for ativo in valor_por_ativo.keys():
         datas_comum = datas_comum.intersection(set(valor_por_ativo[ativo].keys()))
-    print(datas_comum)
+    
     # Com as datas comuns em mãos, vamos unir o valor de todos os ativos em um só,
     # tendo assim o valor total da carteira por data.
     dados_finais = {}
@@ -375,21 +375,22 @@ def graf_stock(base, arquivo):
 
 # Esta parte do código é apenas para teste, e demora consideravelmente para rodar!
 
-from cotacao import cotacao_anual
+# from cotacao import cotacao_anual
 
-carteira = {
-    "AVST.L": "213.1243", 
-    "ANTO.L	": "32",
-    "PETZ3.SA": "501.49", 
-    "TWDBRL=X": "1203.000000",
-    "9988.HK": "123.1", 
-    "0700.HK": "34", 
-    "ARSBRL=X": "4300.21345",
-    "INRBRL=X": "125214.3214",
-    "CHFBRL=X": "12465"
-    }
-base = cotacao_anual(carteira)
-graf_barras(carteira, "teste.xlsx")
-graf_linha(carteira, base, "teste.xlsx")
-graf_stock(base, "teste.xlsx")
+# carteira = {
+#     "AVST.L": "213.1243", 
+#     "ANTO.L	": "32",
+#     "PETZ3.SA": "501.49", 
+#     "TWDBRL=X": "1203.000000",
+#     "9988.HK": "123.1", 
+#     "0700.HK": "34", 
+#     "ARSBRL=X": "4300.21345",
+#     "INRBRL=X": "125214.3214",
+#     "CHFBRL=X": "12465"
+#     }
+# base = cotacao_anual(carteira)
+
+# graf_barras(carteira, "teste.xlsx")
+# graf_linha(carteira, base, "teste.xlsx")
+# graf_stock(base, "teste.xlsx")
  
