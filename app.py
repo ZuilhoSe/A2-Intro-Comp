@@ -79,9 +79,9 @@ class Application:
 
     #Método que executa o módulo de buasca de cotações;
     def buscar_cotacoes(self):
-        self.cotacao_anual = cotacao.cotacao_anual({"PETR4.SA":"10", "AMZN":"100"})
-        self.cotacao_semanal = cotacao.cotacao_semanal({"PETR4.SA":"10", "AMZN":"100"})
-        self.cotacao_atual = cotacao.cotacao_atual({"PETR4.SA":"10", "AMZN":"100"})
+        self.cotacao_anual = cotacao.cotacao_anual(self.carteira)
+        self.cotacao_semanal = cotacao.cotacao_semanal(self.carteira)
+        self.cotacao_atual = cotacao.cotacao_atual(self.carteira)
 
     #Método que cria as planilhas excel;
     def criando_excel(self):
@@ -97,7 +97,7 @@ class Application:
             nome_xl = self.xl_nome
         else:
             nome_xl = self.xl_nome + ".xlsx"
-        carteira.carteira(nome_xl, {"PETR4.SA":"10", "AMZN":"100"})
+        carteira.carteira(nome_xl, self.carteira)
 
 #Execução do Aplciativo
 root = Tk()
