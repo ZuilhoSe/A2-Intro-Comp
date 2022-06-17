@@ -40,10 +40,12 @@ def link_folhas(nome_arquivo):
     carteira = planilha["Carteira"]
     estatisticas = planilha["Estatísticas"]
     #Cria as strings dos links
-    link_para_estatisticas = f"=HYPERLINK(\"[{nome_arquivo}]Estatísticas!A1\",\"Estatísticas\")"
-    link_para_carteira = f"=HYPERLINK(\"[{nome_arquivo}]Carteira!A1\",\"Carteira\")"
+    link_para_estatisticas = f"=HYPERLINK(\"[{nome_arquivo}]Estatísticas!A1\",\"Ir para Estatísticas ->\")"
+    link_para_carteira = f"=HYPERLINK(\"[{nome_arquivo}]Carteira!A1\",\"Ir para Carteira ->\")"
     #Adiciona o link a celula A1 de cada folha
+    carteira.merge_cells("A1:C1")
     carteira["A1"] = link_para_estatisticas
+    estatisticas.merge_cells("A1:C1")
     estatisticas["A1"] = link_para_carteira
     #Salva a planilha
     planilha.save(nome_arquivo)
@@ -57,3 +59,5 @@ def criar_planilha(nome_arquivo):
     criar_arquivo(nome_arquivo)
     criar_folhas(nome_arquivo)
     link_folhas(nome_arquivo)
+
+criar_planilha("teste.xlsx")
