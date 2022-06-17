@@ -11,10 +11,6 @@ from openpyxl.chart.updown_bars import UpDownBars
 from openpyxl.chart.data_source import NumData, NumVal
 from openpyxl.chart.trendline import Trendline
 from openpyxl.drawing.line import LineProperties
-from openpyxl.styles import NamedStyle,PatternFill, Font
-from carteira import aplicar_estilo_area
-
-from cotacao import cotacao_anual
 
 locale.setlocale(locale.LC_ALL, ("pt_BR", "utf-8"))
 
@@ -153,17 +149,44 @@ def graf_barras(base, arquivo):
     estatisticas.add_chart(bar_grafic, "B3")
     planilha.save(arquivo)
 
-def graf_linha(base, arquivo):
+def graf_linha(quantias, base, arquivo):
     """Gera um gráfico de linhas em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
 
     Args:
-        base (dict): Recebe um dicionário com chaves no formato de datas, e valores no formato de valor em dinheiro, correspondentes ao valor total da carteira em determinada data.
+        quantias (dict): Recebe um dicionário com os nomes das ações como chaves, e as quantias das ações na carteira como valores.
+        base (dict): Recebe um dicionário com os nomes das ações como chaves (é importante que sejam iguais aos das quantias), e como valores, dataframes com os históricos de cada ação, no último ano.
         arquivo (str): Nome do arquivo excel onde será gerado o gráfico. Deve estar no formato ("nome.xlsx")
     """
 
-    # Vamos começar importando a planilha para inserir os dados nela
+    # Vamos começar importando a planilha
     planilha = load_workbook(arquivo)
     estatisticas = planilha["Estatísticas"]
+
+    # Precisamos pegar ambos os dicionarios dados como argumento, e converter em um dicionário
+    # para inserir na tabela.
+    valor_por_ativo = {}
+    for ativo in base.keys():
+        dataframe = base[ativo]
+        valor_por_ativo[ativo] = {}
+        for data in dataframe.index:
+            strf_data = data.strftime("%Y-%m-%d")
+            valor = (dataframe.at[data, "Close"]) * float(quantias[ativo])
+            valor_por_ativo[ativo][strf_data] = valor
+        
+    # Agora precisamos saber quais datas esses dicionários possuem em comum
+    datas_comum = set(valor_por_ativo[ativo].keys())
+    for ativo in valor_por_ativo.keys():
+        datas_comum = datas_comum.intersection(set(valor_por_ativo[ativo].keys()))
+    
+    # Com as datas comuns em mãos, vamos unir o valor de todos os ativos em um só,
+    # tendo assim o valor total da carteira por data.
+    dados_finais = {}
+    for data in valor_por_ativo[ativo].keys():
+        valor_total = 0
+        if data in datas_comum:
+            for ativo in valor_por_ativo.keys():
+                valor_total += valor_por_ativo[ativo][data]
+            dados_finais[data] = valor_total
 
     # Inserindo os dados na planilha
     linha = 2
@@ -171,10 +194,10 @@ def graf_linha(base, arquivo):
     coluna_valor = 7
     estatisticas.cell(row=linha, column=coluna_data, value="Data")
     estatisticas.cell(row=linha, column=coluna_valor, value="Valores")
-    for key in base.keys():
+    for key in dados_finais.keys():
         linha += 1
         estatisticas.cell(row=linha, column=coluna_data, value=key)
-        estatisticas.cell(row=linha, column=coluna_valor, value=base[key])
+        estatisticas.cell(row=linha, column=coluna_valor, value=dados_finais[key])
 
     #Seleciona o tipo e os titulos
     graf_linha = LineChart()
@@ -322,20 +345,16 @@ def graf_stock(base, arquivo):
             pos_linha = int(2 + (16*(grafico/2)))
         estatisticas.add_chart(stock, f"{pos_coluna}{pos_linha}")
 
-    # Estilo para esconder os dados das tabelas inseridas na planilha
-    ultima_coluna = 10 + (9 * grafico)
-    estilo_esconder = NamedStyle(name = "estilo_esconder")
-    estilo_esconder.font = Font(color="FFFFFF")
-    aplicar_estilo_area(estatisticas, 2, 366, 3, ultima_coluna, estilo_esconder)
-
     planilha.save(arquivo)
 
 """==========================================================================================="""
 
-# # Teste:
-# carteira = {"PETR4.SA":"10", "AMZN":"10", "AAPL":"100", "KO":"100"}
-# dicionario = {"01/01/2000": 10, "02/01/2000": 30, "03/01/2000": 100, "04/01/2000": 70, "05/01/2000": 150}
+# # Esta parte do código é apenas para teste, e demora consideravelmente para rodar!
+
+# from cotacao import cotacao_anual
+# carteira = {"PETR4.SA": 10, "AMZN": 10, "AAPL": 100, "KO": 100}
+# base = cotacao_anual(carteira)
 
 # graf_barras(carteira, "teste.xlsx")
-# graf_linha(dicionario, "teste.xlsx")
-# graf_stock(carteira, "teste.xlsx")
+# graf_linha(carteira, base, "teste.xlsx")
+# graf_stock(base, "teste.xlsx")
