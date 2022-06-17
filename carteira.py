@@ -260,7 +260,7 @@ def criar_corpo_carteira(nome_folha, dicionario_ativos):
     #Puxa o dicionario de ativos e seus dataframes
     cotacao = cotacao_semanal(dicionario_ativos)
     #Puxa os valores das ultimas cotações
-    valores_atuais = cotacao_atual(dicionario_ativos)
+    valores_atuais = cotacao_atual(cotacao)
     #Define a linha que termina o cabeçalho
     linha_inicial = 9
     #Define os estilos para estilizar as tabelas
@@ -269,7 +269,9 @@ def criar_corpo_carteira(nome_folha, dicionario_ativos):
     for ativo, data_frame in cotacao.items():
         estilizar_tabela_ativo(nome_folha, estilos, linha_inicial, 1)
         criar_tabela_ativo(nome_folha, ativo, data_frame, linha_inicial, 3)
-        criar_resumo(nome_folha, valores_atuais[ativo], dicionario_ativos[ativo], linha_inicial, 12)
+        valor_atual = valores_atuais[ativo]
+        quantidade_ativo = float(dicionario_ativos[ativo])
+        criar_resumo(nome_folha, valor_atual, quantidade_ativo, linha_inicial, 12)
         #Define o começo do próximo bloco
         linha_inicial += 12
 
@@ -291,7 +293,7 @@ def carteira(nome_arquivo, dicionario_ativos):
     #Salva o arquivo
     planilha.save(nome_arquivo)
 
-dic = {'AVST.L': 10}
+dic = {'PETR4.SA': '240', 'B3SA3.SA': '120', 'HAPV3.SA': '300', 'OIBR3.SA':'78','BRL=X':'3187.76','JPYBRL=X':'120987.09','EURBRL=X':'2490.87'}
 from criar_excel import criar_planilha
 criar_planilha("Teste1.xlsx")
 carteira("Teste1.xlsx",dic)
