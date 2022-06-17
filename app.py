@@ -1,8 +1,8 @@
 from tkinter import *
 import validators
-import time
 import scrapper
 import cotacao
+import criar_excel
 
 
 class Application:
@@ -38,6 +38,14 @@ class Application:
         self.url["font"] = self.fontePadrao
         self.url.pack(side=LEFT)
 
+        self.xlLabel = Label(self.terceiroContainer,text="Saída Excel", font=self.fontePadrao)
+        self.xlLabel.pack(side=LEFT)
+
+        self.xl = Entry(self.terceiroContainer)
+        self.xl["width"] = 30
+        self.xl["font"] = self.fontePadrao
+        self.xl.pack(side=LEFT)
+
         self.iniciar = Button(self.quartoContainer)
         self.iniciar["text"] = "Iniciar"
         self.iniciar["font"] = ("Calibri", "8")
@@ -54,10 +62,9 @@ class Application:
         self.url_coletada = self.url.get()
         if validators.url(self.url_coletada) == True:
             self.mensagem["text"] = "URL válida, dando prosseguimento... \n Agora vai demorar um pouco..."
-            self.realizar_scrapper
-            print(1)
-            self.buscar_cotacoes
-            print(2)
+            self.realizar_scrapper()
+            self.buscar_cotacoes()
+            self.criando_excel()
         else:
             self.mensagem["text"] = "URL INVÁLIDA! Certifique-se de que a URL está correta!"
 
@@ -79,7 +86,12 @@ class Application:
 
     #Método que cria as planilhas excel;
     def criando_excel(self):
-        pass
+        self.xl_nome = self.xl.get()
+        if ".xlxs" in self.xl_nome:
+            criar_excel.criar_arquivo(self.xl_nome)
+        else:
+            criar_excel.criar_arquivo(self.xl_nome + ".xlxs")
+        self.mensagem["text"] = "Arquivo Criado"
 
     #método que cria os gráficos;
     def criando_graficos(self):
@@ -89,3 +101,4 @@ class Application:
 root = Tk()
 Application(root)
 root.mainloop()
+
