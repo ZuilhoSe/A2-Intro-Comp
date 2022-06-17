@@ -1,7 +1,9 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import NamedStyle,PatternFill, Border, Side, Alignment, Protection, Font
-from cotacao import cotacao_semanal
+from cotacao import cotacao_semanal, cotacao_atual
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.drawing.image import Image
+import qrcode
 
 #Funções de estilo da carteira
 def aplicar_estilo_area(nome_folha, linha_inicial, linha_final, coluna_inicial, coluna_final, estilo):
@@ -154,11 +156,54 @@ def ajustar_largura_colunas(nome_folha):
     nome_folha.column_dimensions['K'].width = 2
     nome_folha.column_dimensions['L'].width = 20
     nome_folha.column_dimensions['M'].width = 20
-    nome_folha.column_dimensions['N'].width = 7.2
+    nome_folha.column_dimensions['N'].width = 7
     nome_folha.column_dimensions['O'].width = 7.2
     nome_folha.column_dimensions['P'].width = 2
+    #Arrumar altura para QRCODE
+    nome_folha.row_dimensions[7].height = 14.88
 
 #Funções de adição dos dados
+def criar_qrcode(dicionario_ativos,valores_atuais,nome_qrcode):
+    """Cria o QRCODE com o valor total da carteira
+
+    Args:
+        dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
+        valores_atuais (dic): dicionario com os valores totais de cada ativo
+        nome_qrcode (str): deve estar no formato "nome_arquivo.png"
+    """    
+    valor_total = 0
+    for ativo,quantidade in dicionario_ativos.items():
+        valor_atual = float(valores_atuais[ativo])
+        quantidade_ativo = float(quantidade)
+        valor = valor_atual * quantidade_ativo
+        valor_total += valor
+    valor_total = round(valor_total,2)
+    valor_total = str(valor_total).replace('.',',')
+    mensagem = str(f"O valor total da sau carteira é R$ {valor_total}")
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=3,
+        border=2)
+    qr.add_data(mensagem)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    img.save(nome_qrcode)
+
+def adicionar_qrcode(dicionario_ativos,valores_atuais,nome_arquivo,nome_folha):
+    """Adiciona o QRCODE na planilha
+
+    Args:
+        dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
+        valores_atuais (dic): recebe o dicionario com os valore totais por ativo
+        nome_arquivo (string): deve estar no formato("nome_arquivo.xlsx")
+        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
+    """
+    nome_qrcode = nome_arquivo + ".png"
+    criar_qrcode(dicionario_ativos,valores_atuais,nome_qrcode)
+    img = Image(nome_qrcode)
+    nome_folha.add_image(img, 'N3')
+
 def criar_cabecalho(nome_folha):
     """Cria o cabeçalho da planilha
 
@@ -221,25 +266,25 @@ def criar_blocos(linha_inicial, coluna_inicial, titulo, valor, nome_folha):
         titulo (string): Impresso no bloco da esquerda
         valor (Any): Impresso no bloco da direita
         nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
-    """    
+    """
     nome_folha.cell(row = linha_inicial,column = coluna_inicial, value = titulo)
     nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial, end_row = linha_inicial+1, end_column = coluna_inicial)
     nome_folha.cell(row = linha_inicial,column = coluna_inicial+1, value = valor)
     nome_folha.merge_cells(start_row = linha_inicial, start_column = coluna_inicial+1, end_row = linha_inicial+1, end_column = coluna_inicial +  2)
 
-def criar_resumo(nome_folha, valor_total, valor_ultima_cotacao, quantidade, linha_inicial, coluna_inicial):
+def criar_resumo(nome_folha, valor_ultima_cotacao, quantidade, linha_inicial, coluna_inicial):
     """Cria os blocos de resumo do ativo
 
     Args:
         nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
-        valor_total (float): deve estar no formato 9999.99
         valor_ultima_cotacao (float): deve estar no formato 9999.99
         quantidade (float): deve estar no formato 9999.99
         linha_inicial (int): linha em que começa o bloco de resumos
         coluna_inicial (int): coluna em que começa o bloco de resumos
-    """    
+    """
     #Cria os blocos do Total Anual
     linha_total = linha_inicial +1
+    valor_total = valor_ultima_cotacao * quantidade
     criar_blocos(linha_total, coluna_inicial, "Total Atual", valor_total, nome_folha)
     formatar_valor(nome_folha, "Real", linha_total,linha_total, coluna_inicial + 1, coluna_inicial + 1)
     #Cria os blocos de Qtd. Ativos
@@ -250,24 +295,28 @@ def criar_resumo(nome_folha, valor_total, valor_ultima_cotacao, quantidade, linh
     criar_blocos(linha_ultima_cotacao, coluna_inicial, "Última Cotação", valor_ultima_cotacao, nome_folha)
     formatar_valor(nome_folha, "Real", linha_ultima_cotacao, linha_ultima_cotacao, coluna_inicial + 1, coluna_inicial + 1)
 
-def criar_corpo_carteira(nome_folha, dicionario_ativos):
+def criar_corpo_carteira(nome_folha, dicionario_ativos,cotacao,valores_atuais):
     """Cria todas as tabelas por cada ativo
 
     Args:
         nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
         dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
-    """    
+        cotacao (dictionary): deve estar no formato {ativo1:data.frame1,ativo2:data.frame2,...}
+        valores_atuais (dictionary): deve estar no formato {ativo1:valor_atual1,ativo2:valor_atual2,...}
+    """
     #Puxa o dicionario de ativos e seus dataframes
     cotacao = cotacao_semanal(dicionario_ativos)
     #Define a linha que termina o cabeçalho
     linha_inicial = 9
     #Define os estilos para estilizar as tabelas
     estilos = estilos_tabela_ativo()
-    #Para cada ativo cria os blocos
+    #Para cada ativo cria o bloco do ativo
     for ativo, data_frame in cotacao.items():
         estilizar_tabela_ativo(nome_folha, estilos, linha_inicial, 1)
         criar_tabela_ativo(nome_folha, ativo, data_frame, linha_inicial, 3)
-        criar_resumo(nome_folha, 1, 1, 1, linha_inicial, 12)
+        valor_atual = valores_atuais[ativo]
+        quantidade_ativo = float(dicionario_ativos[ativo])
+        criar_resumo(nome_folha, valor_atual, quantidade_ativo, linha_inicial, 12)
         #Define o começo do próximo bloco
         linha_inicial += 12
 
@@ -278,13 +327,27 @@ def carteira(nome_arquivo, dicionario_ativos):
     Args:
         nome_arquivo (string): deve estar no formato("nome_arquivo.xlsx")
         dicionario_ativos (dictionary): deve estar no formato {ativo1:qtd1,ativo2:qtd2,...}
-    """    
+    """
     #Abre a planilha
     planilha = load_workbook(nome_arquivo)
     #Seleciona a folha da carteira
     folha_carteira = planilha["Carteira"]
+    #Puxa o dicionario de ativos e seus dataframes
+    cotacao = cotacao_semanal(dicionario_ativos)
+    #Puxa os valores das ultimas cotações
+    valores_atuais = cotacao_atual(cotacao)
     criar_cabecalho(folha_carteira)
-    criar_corpo_carteira(folha_carteira, dicionario_ativos)
+    criar_corpo_carteira(folha_carteira,dicionario_ativos,cotacao,valores_atuais)
     ajustar_largura_colunas(folha_carteira)
+    adicionar_qrcode(dicionario_ativos,valores_atuais,nome_arquivo,folha_carteira)
     #Salva o arquivo
     planilha.save(nome_arquivo)
+
+"""
+Um teste para ver se o modulo está funcionando:
+
+from criar_excel import criar_planilha
+dic = {'PETR4.SA': '240', 'B3SA3.SA': '120', 'HAPV3.SA': '300', 'OIBR3.SA':'78','BRL=X':'3187.76','JPYBRL=X':'120987.09','EURBRL=X':'2490.87'}
+criar_planilha("Teste1.xlsx")
+carteira("Teste1.xlsx",dic)
+"""
