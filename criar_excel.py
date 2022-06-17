@@ -50,6 +50,23 @@ def link_folhas(nome_arquivo):
     #Salva a planilha
     planilha.save(nome_arquivo)
 
+def aplicar_estilo_area(nome_folha, linha_inicial, linha_final, coluna_inicial, coluna_final, estilo):
+    """Aplica um estilo de formatação de célula a uma range de células
+
+    Args:
+        nome_folha (openpyxl.worksheet.worksheet.Worksheet): deve estar no formato load_workbook(nome_arquivo)["nome_folha"]
+        linha_inicial (int): 
+        linha_final (int): 
+        coluna_inicial (int): 
+        coluna_final (int): 
+        estilo (openpyxl.style): deve estar no formato  estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
+    """    
+    linhas = range(linha_inicial, linha_final + 1)
+    colunas = range(coluna_inicial, coluna_final + 1)
+    for linha in linhas:
+        for coluna in colunas:
+            nome_folha.cell(row = linha, column = coluna).style = estilo
+
 def bloquear_planilha(nome_arquivo):
     """Bloqueia as folhas da planilha
 
