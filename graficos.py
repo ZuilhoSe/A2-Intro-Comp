@@ -11,15 +11,28 @@ from openpyxl.chart.updown_bars import UpDownBars
 from openpyxl.chart.data_source import NumData, NumVal
 from openpyxl.chart.trendline import Trendline
 from openpyxl.drawing.line import LineProperties
+from openpyxl.styles import NamedStyle, Font
+from criar_excel import aplicar_estilo_area
 
 locale.setlocale(locale.LC_ALL, ("pt_BR", "utf-8"))
 
-def graf_barras(base, arquivo):
+def estilo_tabelas():
+    """Cria o estilo utilizado para esconder as tabelas
+
+    Returns:
+        estilo (openpyxl.style): deve estar no formato  estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
+    """    
+    estilo = NamedStyle(name = "estilo")
+    estilo.font = Font(color = "00FFFFFF")
+    return estilo
+
+def graf_barras(base, arquivo, estilo):
     """Gera um gráfico de barras em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
 
     Args:
         base (dict): Recebe um dict com o nome de uma ou mais ações como keys, não importando os valores relacionados
         arquivo (str): Nome do arquivo excel onde será gerado o gráfico. Deve estar no formato ("nome.xlsx")
+        estilo (openpyxl.style): deve estar no formato  estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
     """    
 
     #O gráfico de barras mostra quanto uma ação subiu ou desceu de valor no último ano, e para isso devemos primeiro adquirir os dados pelo yfinance, e em seguida montar o gráfico
@@ -116,17 +129,20 @@ def graf_barras(base, arquivo):
     #Carregamos a planilha e selecionamos a folha de trabalho
     planilha = load_workbook(arquivo)
     estatisticas = planilha["Estatísticas"]
-    
+
     #Inserimos os dados na planilha
     linha_d = 2
     for dado in dados:
         linha_d += 1
-        estatisticas[f"C{linha_d}"].value = dado        
+        estatisticas[f"C{linha_d}"].value = dado  
     
     linha_c = 2
     for cat in categorias:
         linha_c += 1
         estatisticas[f"D{linha_c}"].value = cat
+    
+    #Esconde a planilha
+    aplicar_estilo_area(estatisticas,2,linha_d,3,4,estilo)
 
     #Selecionamos o tipo e os títulos do grafico
     bar_grafic = BarChart()
@@ -167,13 +183,14 @@ def graf_barras(base, arquivo):
     estatisticas.add_chart(bar_grafic, "B3")
     planilha.save(arquivo)
 
-def graf_linha(quantias, base, arquivo):
+def graf_linha(quantias, base, arquivo, estilo):
     """Gera um gráfico de linhas em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
 
     Args:
         quantias (dict): Recebe um dicionário com os nomes das ações como chaves, e as quantias das ações na carteira como valores.
         base (dict): Recebe um dicionário com os nomes das ações como chaves (é importante que sejam iguais aos das quantias), e como valores, dataframes com os históricos de cada ação, no último ano.
         arquivo (str): Nome do arquivo excel onde será gerado o gráfico. Deve estar no formato ("nome.xlsx")
+        estilo (openpyxl.style): deve estar no formato  estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
     """
 
     # Vamos começar importando a planilha
@@ -222,6 +239,8 @@ def graf_linha(quantias, base, arquivo):
         linha += 1
         estatisticas.cell(row=linha, column=coluna_data, value=key)
         estatisticas.cell(row=linha, column=coluna_valor, value=dados_finais[key])
+    #Esconde a planilha
+    aplicar_estilo_area(estatisticas,2,linha,coluna_data,coluna_valor,estilo)
 
     #Seleciona o tipo e os titulos
     graf_linha = LineChart()
@@ -252,12 +271,13 @@ def graf_linha(quantias, base, arquivo):
     estatisticas.add_chart(graf_linha, "L3")
     planilha.save(arquivo)
 
-def graf_stock(base, arquivo):
+def graf_stock(base, arquivo, estilo):
     """Gera um gráfico do tipo Stock em uma planilha excel já existente. É necessário que exista uma Worksheet na planilha chamada Estatísticas.
 
     Args:
         base (dict): Recebe um dicionário com o nome das ações como Keys, e como valor um dataframe com os dados open-close-high-low da respectiva ação
         arquivo (str): Nome do arquivo excel onde será gerado o gráfico. Deve estar no formato ("nome.xlsx")
+        estilo (openpyxl.style): deve estar no formato  estilo_titulo_carteira = NamedStyle(name = "estilo_titulo_carteira")
     """    
 
     # Essa função irá criar um Stock Chart para cada ativo com as informações de cada um no último ano, de 
@@ -316,6 +336,7 @@ def graf_stock(base, arquivo):
         for item in dataframe.Close:
             linha += 1
             estatisticas.cell(row=linha, column=coluna, value=item)
+        aplicar_estilo_area(estatisticas,2,linha,coluna-5,coluna,estilo)
 
     # Aqui cria-se um gráfico para cada ativo. Para não sobrepor os gráficos, vamos diferenciá-los através 
     # de um contador. Usaremos do posicionamento dos dados ser em múltiplos de 9 para localizá-los na planilha,

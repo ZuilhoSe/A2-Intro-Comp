@@ -125,10 +125,11 @@ class Application:
     #Método que cria os gráficos;
     def criando_graficos(self):
         """Método que executa as funções do grafico.py
-        """        
-        graficos.graf_barras(self.carteira, self.nome_xl)
-        graficos.graf_linha(self.carteira, self.cotacao_anual, self.nome_xl)
-        graficos.graf_stock(self.cotacao_anual, self.nome_xl)
+        """
+        estilo = graficos.estilo_tabelas()        
+        graficos.graf_barras(self.carteira, self.nome_xl, estilo)
+        graficos.graf_linha(self.carteira, self.cotacao_anual, self.nome_xl, estilo)
+        graficos.graf_stock(self.cotacao_anual, self.nome_xl, estilo)
         self.mensagem["text"] = "Gráficos Criados"
 
 #Execução do Aplciativo
