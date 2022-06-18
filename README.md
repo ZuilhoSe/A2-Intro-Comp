@@ -2,15 +2,10 @@
 Trabalho de A2 do curso de Introdução a Computação: scrapping de uma página web para avaliação de uma carteira financeira.
 
 ## Requisitos
-É necessário ter as seguintes bibliotecas:
-* tkinter
-* openpyxl   
-* pandas
-* validators
-* qrcode
-* requests
-* datetime 
-* os
+Para instalar os pacotes necessários execute: 
+```
+pip install -r requirements.txt
+```
 
 ## Carteiras para utilização
 * [https://zuilhose.github.io/A2-Intro-Comp/index.html](https://zuilhose.github.io/A2-Intro-Comp/index.html)
