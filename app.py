@@ -35,7 +35,7 @@ class Application:
         self.quartoContainer.pack()
 
         self.mensagem = Label(self.quartoContainer, text="", font=self.fontePadrao)
-        self.mensagem["text"] = "Após clicar em iniciar, o programa demora a executar. \n É necessário esperar um pouco."
+        self.mensagem["text"] = "Após clicar em iniciar, o programa demora a executar. \n É necessário esperar um pouco. \n\n obs: Devido a demora de resposta, o tkinter diz que 'não está respondendo',\n mas o código ainda está rodando."
         self.mensagem.pack()
 
         self.titulo = Label(self.primeiroContainer, text="Robô de Avaliação de Portfólio de Investimentos")
@@ -76,6 +76,7 @@ class Application:
             self.criando_excel()
             self.criando_carteira()
             self.criando_graficos()
+            self.bloqueando_planilha()
             self.mensagem["text"] = "Programa Finalizado! Pode abrir o arquivo .xlsx"
         else:
             self.mensagem["text"] = "URL INVÁLIDA! Certifique-se de que a URL está correta!"
@@ -131,6 +132,12 @@ class Application:
         graficos.graf_linha(self.carteira, self.cotacao_anual, self.nome_xl, estilo)
         graficos.graf_stock(self.cotacao_anual, self.nome_xl, estilo)
         self.mensagem["text"] = "Gráficos Criados"
+
+    #Método que bloqueia a planilha
+    def bloqueando_planilha(self):
+        """Método que bloqueia a planilha
+        """        
+        criar_excel.bloquear_planilha(self.nome_xl)
 
 #Execução do Aplciativo
 root = Tk()
