@@ -10,6 +10,7 @@ Trabalho de A2 do curso de Introdução a Computação: scrapping de uma página
 * qrcode
 * requests
 * datetime 
+* os
 
 ## Carteiras para utilização
 * [https://zuilhose.github.io/A2-Intro-Comp/index.html](https://zuilhose.github.io/A2-Intro-Comp/index.html)
