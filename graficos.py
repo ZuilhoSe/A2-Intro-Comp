@@ -74,7 +74,7 @@ def graf_barras(base, arquivo, estilo):
         while ticket_hist.size == 0 or ticket_hist.Close[0] == -1:
 
             if dias_antigos == 380:
-                print(f"Não foi possível encontrar valores para {ativo}")
+                print(f"Não foi possivel encontrar valores suficientes para análise do ativo {ativo}")
                 falha = True
                 break
 
