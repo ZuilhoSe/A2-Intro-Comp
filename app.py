@@ -84,7 +84,9 @@ class Application:
     #Método para realização do scrapper;
     def realizar_scrapper(self):
         """Método que realiza as funções do scrapper.py
-        """        
+        """     
+        #Reinicia a carteira para a nova busca;  
+        scrapper.carteira = {}
         soup = scrapper.ler_carteira(self.url_coletada)
         acoes = scrapper.buscar_acoes(soup)
         moedas = scrapper.buscar_moedas(soup)
