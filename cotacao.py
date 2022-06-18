@@ -1,4 +1,3 @@
-from ast import Try
 from types import NoneType
 from pandas import DataFrame
 import yfinance as yf
@@ -74,6 +73,8 @@ def conversao(ticket_hist, fator):
         ticket_hist ["High"] = fator["High"] * ticket_hist ["High"]
         ticket_hist ["Low"] = fator["Low"] * ticket_hist ["Low"]
         ticket_hist ["Close"] = fator["Close"] * ticket_hist ["Close"]
+        ticket_hist ["Volume"] = fator["Close"] * ticket_hist ["Volume"]
+        ticket_hist ["Dividends"] = fator["Close"] * ticket_hist ["Dividends"]
     return ticket_hist
 
 
@@ -148,6 +149,3 @@ def cotacao_atual(dic):
         except KeyError:
             continue
     return dicionario_atual
-
-# use o dicionario a baixo como teste 
-#dic = {'AVST.L': 'GBp', 'ANTO.L': 'GBp', 'PEsTZ3.SA': 'GBp', '9988d.HK': 'GBp', '07030.HK': 'GBp', 'ARS4BRL=X': 'GBp', 'INR1BRL=X': 'GBp', 'CHFB3RL=X': 'GBp', 'TWDBRL=X': None}
