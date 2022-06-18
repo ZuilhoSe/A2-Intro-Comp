@@ -1,4 +1,5 @@
 from openpyxl import Workbook, load_workbook
+from openpyxl.workbook.protection import WorkbookProtection
 
 def criar_arquivo(nome_arquivo):
     """Cria o arquivo excel
@@ -84,8 +85,10 @@ def bloquear_planilha(nome_arquivo):
     #Remover headers
     carteira.sheet_view.showRowColHeaders = False
     estatisticas.sheet_view.showRowColHeaders = False
+    #Proteger planilha
     carteira.protection.password = "protegida"
     estatisticas.protection.password = "protegida"
+    planilha.security = WorkbookProtection(workBookPassword = "protegida", lockStructure = True)
     #Salva a planilha
     planilha.save(nome_arquivo)
 
